@@ -64,3 +64,4 @@ function doPost(e) {
 **Importante**: O retorno com `ContentService` e `setMimeType(JSON)` evita erros de CORS. Sem isso, o navegador pode bloquear a requisição.
 
 Na primeira linha da planilha, adicione os cabeçalhos: `Timestamp` | `Nome` | `WhatsApp` | `Nível` | `Pontuação` | `Q1` | `Q2` | `Q3` | ... | `Q18`. Cada coluna Q1–Q18 armazena o valor numérico da resposta (0=Nunca, 1=Raramente, 2=Às vezes, 3=Frequentemente, 4=Sempre).
+# karla-quiz

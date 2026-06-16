@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 
 // ============ CONFIGURATION (update these as needed) ============
 const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyzvpm7uPCkeyLx3nZYOJ_3t5bDU6xw9wD7H6_30r9ZyHniVJHLrA1lZOMYY8G2wNfHEQ/exec'
-const WHATSAPP_PHONE = '5534996857010'
+const WHATSAPP_PHONE = '5534999358461'
 
 // ============ QUIZ DATA ============
 const SCALE_LABELS = ['Nunca', 'Raramente', 'Às vezes', 'Frequentemente', 'Sempre']

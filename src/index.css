@@ -732,6 +732,35 @@ body {
   }
 }
 
+/* 3.5 PERSONAL VIDEO MESSAGE */
+/* Karla's footage is shot vertically but exported into a 16:9 YouTube
+   frame with pillarboxing. A 9:16 wrapper + a same-height 16:9 iframe,
+   centered and clipped, crops out the bars and shows only the vertical
+   content — no re-export needed on her end. */
+.result-video-wrapper {
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 9 / 16;
+  margin: 0 auto 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  background: #000;
+  opacity: 0;
+  animation: para-fade 0.4s ease forwards;
+}
+
+.result-video {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  transform: translateX(-50%);
+  border: none;
+  display: block;
+}
+
 /* 4. DEVOLUTIVA TEXT */
 .devolutiva {
   width: 100%;

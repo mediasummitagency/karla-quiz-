@@ -35,8 +35,10 @@ const RESULT_LEVELS = [
     name: 'Sobrecarga Leve',
     badge: 'Leve',
     badgeClass: 'level-leve',
+    videoId: 'I8heSy5ExaE',
+    videoTitle: 'Seu resultado: Sobrecarga Emocional Leve | O cansaço que começa em silêncio',
     devolutiva:
-      'Recebi suas respostas com atenção e cuidado. Obrigada por se permitir olhar para si com honestidade.\n\nDe acordo com seus resultados, você se encontra em nível leve de sobrecarga emocional.\n\nIsso significa que há sinais iniciais de cansaço mental e acúmulo de demandas, mas ainda existe preservação importante de energia, funcionamento e clareza emocional.\n\nNo cotidiano, esse nível costuma aparecer como irritação pontual, dificuldade leve de concentração, sensação de estar sempre "um pouco atrasada" e necessidade constante de dar conta de tudo.\n\nVocê pode estar sentindo que está segurando bem, mas com esforço maior do que gostaria. E isso já merece atenção.\n\nQuando a sobrecarga leve não é cuidada, ela tende a se tornar silenciosa. Pequenas tensões acumuladas começam a afetar sono, alimentação, organização e até a forma como você se relaciona.\n\nA psicoterapia, nesse estágio, atua de forma preventiva e estratégica. Trabalhamos organização mental, definição de limites, reestruturação de pensamentos automáticos e construção de micro-hábitos de autorregulação emocional.\n\nÉ o momento ideal para aprender a distribuir melhor suas responsabilidades antes que o peso aumente.\n\nMinha recomendação profissional é iniciar o acompanhamento agora, enquanto há energia para mudanças mais leves e estruturais.\n\nSe desejar, posso te explicar como funciona o processo terapêutico, frequência dos encontros, investimento e próximos passos para começarmos com segurança e clareza.\n\nCuidar agora é escolher não precisar apagar incêndios depois.',
+      'Seu resultado indica sinais de Sobrecarga Emocional Leve.\n\nIsso não significa que você está em exaustão. Mas significa que alguns padrões emocionais já começaram a aparecer e merecem atenção.\n\nMuitas mulheres acreditam que a exaustão emocional surge de repente. A verdade é que ela costuma começar em silêncio, através de pequenos sinais que vão sendo ignorados ao longo do tempo.\n\nNa aula abaixo, vou te ajudar a entender por que isso acontece, quais comportamentos costumam levar a esse estado e como perceber os primeiros sinais antes que eles se tornem algo maior.\n\nAssista com calma. Talvez você se identifique mais do que imagina.',
   },
   {
     min: 19,
@@ -44,8 +46,10 @@ const RESULT_LEVELS = [
     name: 'Sobrecarga em Alerta',
     badge: 'Alerta',
     badgeClass: 'level-alerta',
+    videoId: '0-yWqG98LnA',
+    videoTitle: 'Seu resultado: Sobrecarga Emocional em Alerta | Como você aprendeu a funcionar cansada',
     devolutiva:
-      'Obrigada por confiar no processo e responder com sinceridade.\n\nSeu resultado indica nível de sobrecarga emocional em alerta.\n\nEsse estágio revela que o cansaço mental já está impactando áreas importantes da sua vida. Não é apenas um dia difícil — é um padrão que começa a se repetir.\n\nNo cotidiano, isso pode se manifestar como exaustão constante, dificuldade para descansar sem culpa, sensação de estar sempre devendo algo, lapsos de memória, choro fácil ou irritação frequente.\n\nÉ comum que você esteja funcionando "no automático", resolvendo tudo, mas sentindo que está sempre no limite.\n\nEssa experiência é legítima. Muitas mulheres aprendem a normalizar esse estado, mas ele não é saudável quando se torna permanente.\n\nSem cuidado, o nível em alerta tende a evoluir para quadros de ansiedade mais intensa, sintomas depressivos ou somatizações físicas.\n\nA psicoterapia aqui tem papel estruturante. Trabalhamos identificação de gatilhos, manejo da sobrecarga cognitiva, reorganização de prioridades, construção de limites e regulação emocional consistente.\n\nO objetivo não é apenas aliviar sintomas, mas reorganizar seu modo de funcionamento.\n\nMinha orientação é iniciar acompanhamento neste momento. Esperar "melhorar sozinha" costuma prolongar o desgaste.\n\nSe fizer sentido para você, posso explicar como funcionam as sessões, valores, frequência e disponibilidade para começarmos de forma organizada e segura.\n\nVocê não precisa sustentar tudo sozinha.',
+      'Seu resultado indica Sobrecarga Emocional em Alerta.\n\nIsso significa que o cansaço já deixou de ser algo pontual e começou a se tornar parte da sua rotina.\n\nTalvez você esteja vivendo cansada há tanto tempo que isso passou a parecer normal. Talvez esteja funcionando no automático, tentando dar conta de tudo, mesmo sentindo que sua energia já não é a mesma.\n\nNa aula abaixo, vou te mostrar como esse padrão se desenvolve, o que acontece emocionalmente quando passamos tempo demais sustentando responsabilidades e por que descansar pode estar sendo tão difícil para você.\n\nEssa aula costuma trazer muitos insights para mulheres que sentem que estão carregando mais peso do que deveriam.',
   },
   {
     min: 37,
@@ -53,8 +57,10 @@ const RESULT_LEVELS = [
     name: 'Sobrecarga Elevada',
     badge: 'Elevada',
     badgeClass: 'level-elevada',
+    videoId: 'LIMzwmhBfBI',
+    videoTitle: 'Seu resultado: Sobrecarga Emocional Elevada | Quando a exaustão começa a roubar quem você é',
     devolutiva:
-      'Agradeço sua confiança ao responder o diagnóstico.\n\nSeu resultado indica nível elevado de sobrecarga emocional.\n\nEsse nível aponta que o cansaço mental já está significativamente impactando sua energia, seu humor e possivelmente sua saúde física.\n\nNo cotidiano, pode haver sensação constante de esgotamento, dificuldade para dormir ou acordar descansada, irritabilidade intensa, perda de prazer em atividades que antes eram neutras ou agradáveis, além de pensamentos recorrentes de incapacidade ou insuficiência.\n\nVocê pode estar se sentindo drenada, como se qualquer nova demanda fosse excessiva. É compreensível que, nesse estágio, surjam sentimentos de culpa por não conseguir manter o mesmo ritmo de antes.\n\nQuando não há intervenção, a sobrecarga elevada tende a evoluir para quadros mais estruturados de ansiedade crônica, burnout ou depressão.\n\nA psicoterapia nesse nível atua de forma mais ativa: estabilização emocional, redução de pensamentos disfuncionais, reorganização de rotina, construção de limites claros e desenvolvimento de estratégias práticas de recuperação de energia.\n\nAqui, não falamos apenas de organização — falamos de restauração.\n\nMinha recomendação clínica é iniciar acompanhamento o quanto antes, para evitar agravamento e acelerar o processo de recuperação emocional.\n\nSe desejar, posso detalhar como funciona o início do processo, valores, frequência das sessões e disponibilidade atual.\n\nCuidar agora é interromper um ciclo que já está cobrando um preço alto.',
+      'Seu resultado indica Sobrecarga Emocional Elevada.\n\nNesse estágio, a sobrecarga já não afeta apenas sua energia. Ela pode começar a impactar sua leveza, sua motivação, seu prazer pelas coisas e até sua conexão consigo mesma.\n\nMuitas mulheres chegam aqui acreditando que ficaram fracas, quando na verdade estão emocionalmente exaustas há muito tempo.\n\nNa aula abaixo, vou te ajudar a entender como esse processo acontece, quais são os sinais mais comuns desse estágio e por que tantas mulheres sentem que estão perdendo partes importantes de si mesmas sem perceber.\n\nSe possível, assista até o final. Essa pode ser uma das explicações que você procurava há muito tempo.',
   },
   {
     min: 55,
@@ -62,13 +68,25 @@ const RESULT_LEVELS = [
     name: 'Exaustão Crítica',
     badge: 'Crítica',
     badgeClass: 'level-critica',
+    videoId: 'HDCAsco8Emk',
+    videoTitle:
+      'Seu resultado: Exaustão Emocional Crítica | Seu corpo está tentando sobreviver ao peso que sua mente sustentou por tempo demais',
     devolutiva:
-      'Quero começar reconhecendo sua coragem por responder este diagnóstico.\n\nSeu resultado indica nível crítico de sobrecarga emocional.\n\nIsso significa que o esgotamento mental está em um ponto de risco significativo e pode estar afetando de maneira intensa seu funcionamento diário.\n\nEsse estado não é fraqueza. Ele é resultado de acúmulo prolongado sem suporte adequado.\n\nNesse estágio, é comum haver sensação constante de exaustão extrema, dificuldade de concentração severa, choro frequente ou bloqueio emocional, sensação de vazio, desesperança ou desejo de se afastar de tudo.\n\nVocê pode estar sentindo que está no limite absoluto.\n\nSem cuidado imediato, o nível crítico pode evoluir para quadros depressivos importantes, crises de ansiedade recorrentes ou sintomas físicos mais graves.\n\nA psicoterapia, nesse momento, atua como espaço estruturante e de estabilização. Trabalhamos segurança emocional, redução de risco, organização mínima da rotina, construção de suporte e intervenção direta sobre pensamentos automáticos intensos.\n\nO foco inicial é estabilizar e recuperar segurança interna.\n\nMinha orientação profissional é iniciar acompanhamento com prioridade. Esse não é um momento de esperar passar.\n\nSe estiver pronta, posso explicar disponibilidade imediata, valores, frequência indicada e próximos passos para começarmos o quanto antes.\n\nVocê não precisa atravessar esse nível sozinha. Existe cuidado possível — e ele pode começar agora.',
+      'Seu resultado indica Exaustão Emocional Crítica.\n\nAntes de qualquer coisa, eu quero que você saiba: esse resultado não significa fraqueza.\n\nEle apenas mostra que seu corpo e seu emocional podem estar sustentando mais peso do que conseguem carregar sozinhos neste momento.\n\nMuitas mulheres chegam a esse estágio sentindo culpa, vergonha ou acreditando que deveriam conseguir lidar melhor com tudo. Mas a exaustão emocional raramente acontece porque alguém é fraco. Ela acontece porque alguém sustentou peso demais por tempo demais sem suporte suficiente.\n\nA aula abaixo não foi gravada para te assustar. Ela foi gravada para te ajudar a compreender o que está acontecendo, diminuir a autocobrança e mostrar que existe um caminho possível a partir daqui.\n\nRespire fundo e assista com calma.',
   },
 ]
 
 function getResultLevel(score) {
   return RESULT_LEVELS.find((l) => score >= l.min && score <= l.max) || RESULT_LEVELS[0]
+}
+
+// Masks input as a Brazilian mobile number with DDD: (11) 99999-9999
+function formatWhatsApp(raw) {
+  const digits = raw.replace(/\D/g, '').slice(0, 11)
+  if (digits.length === 0) return ''
+  if (digits.length <= 2) return `(${digits}`
+  if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
 }
 
 function formatTimestampBR() {
@@ -163,6 +181,9 @@ export default function App() {
 
   const score = answers.reduce((a, b) => a + b, 0)
   const resultLevel = getResultLevel(score)
+  const devolutivaParas = resultLevel.devolutiva.split('\n\n')
+  const videoDelay = 1400 + devolutivaParas.length * 150
+  const afterVideoDelay = videoDelay + (resultLevel.videoId ? 300 : 0)
 
   return (
     <div className="app">
@@ -263,10 +284,13 @@ export default function App() {
               />
               <input
                 type="tel"
+                inputMode="numeric"
                 placeholder="(11) 99999-9999"
                 value={formData.whatsapp}
-                onChange={(e) => setFormData((f) => ({ ...f, whatsapp: e.target.value }))}
+                onChange={(e) => setFormData((f) => ({ ...f, whatsapp: formatWhatsApp(e.target.value) }))}
                 required
+                pattern="\(\d{2}\) \d{5}-\d{4}"
+                title="Digite um número de WhatsApp válido com DDD, ex: (11) 99999-9999"
                 className="input-field"
               />
               <button type="submit" className="cta-button">
@@ -330,36 +354,37 @@ export default function App() {
             {/* 2. DIVIDER */}
             <div className="result-divider" aria-hidden="true" />
 
-            {/* 3. WARM INTRO LINE */}
-            <p
-              className="result-intro-line"
-              style={{ animationDelay: '1400ms' }}
-            >
-              {firstName ? (
-                <>
-                  {firstName}, obrigada por se permitir olhar para si com honestidade. Aqui está o que seus resultados revelam:
-                </>
-              ) : (
-                <>
-                  Obrigada por se permitir olhar para si com honestidade. Aqui está o que seus resultados revelam:
-                </>
-              )}
-            </p>
-
-            {/* 4. DEVOLUTIVA TEXT */}
+            {/* 3. DEVOLUTIVA TEXT (level-specific intro to the video below) */}
             <div className="devolutiva">
-              {resultLevel.devolutiva.split('\n\n').map((para, i) => (
-                <p key={i} className="devolutiva-para" style={{ animationDelay: `${1400 + i * 150}ms` }}>
+              {devolutivaParas.map((para, i) => (
+                <p
+                  key={i}
+                  className="devolutiva-para"
+                  style={{ animationDelay: `${1400 + i * 150}ms` }}
+                >
                   {para}
                 </p>
               ))}
             </div>
 
+            {/* 3.5 PERSONAL VIDEO MESSAGE */}
+            {resultLevel.videoId && (
+              <div className="result-video-wrapper" style={{ animationDelay: `${videoDelay}ms` }}>
+                <iframe
+                  className="result-video"
+                  src={`https://www.youtube.com/embed/${resultLevel.videoId}?rel=0`}
+                  title={resultLevel.videoTitle || `Mensagem em vídeo de Karla Arantes — ${resultLevel.name}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            )}
+
             {/* 5. CLOSING SIGNATURE */}
             <div
               className="result-signature"
               style={{
-                animationDelay: `${1400 + resultLevel.devolutiva.split('\n\n').length * 150 + 300}ms`,
+                animationDelay: `${afterVideoDelay + 300}ms`,
               }}
             >
               <div className="result-signature-divider" aria-hidden="true" />
@@ -384,15 +409,15 @@ export default function App() {
             </div>
 
             {/* 6. CTA NUDGE + BUTTON */}
-            <div className="cta-nudge" style={{ '--cta-delay': `${1400 + resultLevel.devolutiva.split('\n\n').length * 150 + 700 + 200}ms` }}>
-              <p className="cta-nudge-text">Estou pronta para dar meu próximo passo</p>
-              <span className="cta-nudge-arrow">↓</span>
+            <div className="cta-nudge" style={{ '--cta-delay': `${afterVideoDelay + 900}ms` }}>
+              <p className="cta-nudge-text">Quero entender meus padrões emocionais com acompanhamento profissional</p>
+              <span className="cta-nudge-arrow">👇</span>
             </div>
             <button
               className="cta-button cta-result"
               onClick={handleWhatsAppClick}
               style={{
-                '--cta-delay': `${1400 + resultLevel.devolutiva.split('\n\n').length * 150 + 700 + 200}ms`,
+                '--cta-delay': `${afterVideoDelay + 900}ms`,
               }}
             >
               Quero conversar com a Karla

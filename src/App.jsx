@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 
 // ============ CONFIGURATION (update these as needed) ============
 const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyzvpm7uPCkeyLx3nZYOJ_3t5bDU6xw9wD7H6_30r9ZyHniVJHLrA1lZOMYY8G2wNfHEQ/exec'
-const WHATSAPP_PHONE = '5534999358461'
+// Checkout do low ticket "Raiz da Sobrecarga" (Kiwify)
+const CHECKOUT_URL = 'https://pay.kiwify.com.br/zftB1uv'
+const CHECKOUT_PRICE = 'R$47 • Acesso digital'
 
 // ============ QUIZ DATA ============
 const SCALE_LABELS = ['Nunca', 'Raramente', 'Às vezes', 'Frequentemente', 'Sempre']
@@ -168,13 +170,8 @@ export default function App() {
     handleScreenChange('result')
   }
 
-  const handleWhatsAppClick = () => {
-    const score = answers.reduce((a, b) => a + b, 0)
-    const level = getResultLevel(score)
-    const firstName = formData.nome.trim().split(/\s+/)[0] || ''
-    const message = `Olá Karla, me chamo ${firstName}. Acabei de fazer o teste e meu resultado foi ${level.name}. Gostaria de conversar.`
-    const url = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`
-    window.open(url, '_blank')
+  const handleCheckoutClick = () => {
+    window.open(CHECKOUT_URL, '_blank', 'noopener')
   }
 
   const firstName = formData.nome.trim().split(/\s+/)[0] || ''
@@ -408,20 +405,46 @@ export default function App() {
               </div>
             </div>
 
-            {/* 6. CTA NUDGE + BUTTON */}
-            <div className="cta-nudge" style={{ '--cta-delay': `${afterVideoDelay + 900}ms` }}>
-              <p className="cta-nudge-text">Quero entender meus padrões emocionais com acompanhamento profissional</p>
-              <span className="cta-nudge-arrow">👇</span>
-            </div>
-            <button
-              className="cta-button cta-result"
-              onClick={handleWhatsAppClick}
-              style={{
-                '--cta-delay': `${afterVideoDelay + 900}ms`,
-              }}
+            {/* 6. PONTE PARA O LOW TICKET (Raiz da Sobrecarga) */}
+            <section
+              className="offer-bridge"
+              style={{ '--cta-delay': `${afterVideoDelay + 900}ms` }}
+              aria-labelledby="offer-bridge-title"
             >
-              Quero conversar com a Karla
-            </button>
+              <div className="offer-bridge-divider" aria-hidden="true" />
+              <h2 className="offer-bridge-title" id="offer-bridge-title">
+                Você já descobriu o quanto está sobrecarregada.
+              </h2>
+              <p className="offer-bridge-para">
+                Mas o seu nível de sobrecarga responde apenas uma parte da pergunta.
+              </p>
+              <p className="offer-bridge-para">Talvez tenha ficado outra:</p>
+              <p className="offer-bridge-question">
+                “Por que eu continuo funcionando dessa maneira mesmo quando sei que estou cansada?”
+              </p>
+              <p className="offer-bridge-para">
+                A resposta pode estar na forma como você aprendeu a responder às demandas, às pessoas e
+                às suas próprias necessidades.
+              </p>
+              <p className="offer-bridge-para">
+                É isso que vamos investigar no <strong>Raiz da Sobrecarga®</strong>.
+              </p>
+              <p className="offer-bridge-para offer-bridge-para-last">
+                Uma experiência guiada de autorreflexão para ajudar você a perceber o padrão que
+                aparece com mais força no seu funcionamento.
+              </p>
+              <span className="cta-nudge-arrow">👇</span>
+              <button
+                className="cta-button cta-result"
+                onClick={handleCheckoutClick}
+                style={{
+                  '--cta-delay': `${afterVideoDelay + 900}ms`,
+                }}
+              >
+                Quero descobrir minha raiz
+              </button>
+              <p className="offer-bridge-price">{CHECKOUT_PRICE}</p>
+            </section>
           </section>
         )}
       </main>

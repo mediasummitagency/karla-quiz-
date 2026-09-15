@@ -21,3 +21,15 @@ for the full setup + a Zapier "Template field" gotcha hit along the way (also lo
 app, not just this one). If the sheet's column layout in `Code.gs:37` (Timestamp/Nome/
 Email/WhatsApp/Nível/Pontuação/Q1-Q18) ever changes, the Zap's field mappings need updating
 too since they reference those columns by name.
+
+[2026-09-15] LESSON: Driving this quiz end-to-end in a browser submits a REAL lead — `doPost`
+writes to Karla's sheet and the Zapier WhatsApp Zap fires off that row. | TRIGGER: Screenshotting
+the result page needs all 18 answers plus the lead form. | FIX: Route-block
+`**://script.google.com/**` in the test browser before starting; confirm the abort count is
+non-zero rather than assuming it worked.
+
+[2026-09-15] LESSON: The result page's CTA block sits outside the per-level branches, so one edit
+there changes all four result levels at once; only `devolutiva`/`videoId` are level-specific. |
+TRIGGER: Karla asked for the low-ticket bridge on "todos os resultados do teste gratuito". | FIX:
+Edit the shared block once; no per-level duplication needed. See
+`_workspace/Work-sessions/session-summary-2026-09-15-low-ticket-bridge.md`.

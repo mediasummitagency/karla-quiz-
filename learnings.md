@@ -40,3 +40,9 @@ offer bar unreachable. | TRIGGER: Karla asked for the offer bar to appear only a
 watched video. | FIX: `STICKY_AFTER_SECONDS` in `App.jsx`; re-check durations
 (`curl` the watch page, grep `lengthSeconds`) whenever a result video is swapped, e.g. when she
 re-records the aula.
+
+[2026-09-15] LESSON: A click-to-play poster over the result video was built and reverted the same
+day — iOS blocks autoplay with sound, so it cost two taps; `youtube-nocookie` was kept because it
+drops all doubleclick calls (19 reqs w/ ads vs 16 w/ none) at no UX cost. | TRIGGER: Lucas tested
+on a phone and hit the double tap. | FIX: Plain embed + `-nocookie` + `enablejsapi` for the offer-bar
+gate. Don't re-propose a facade here unless the videos go muted.

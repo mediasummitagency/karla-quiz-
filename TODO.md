@@ -58,8 +58,10 @@ https://claude.ai/artifact/38BL3uf5rZ1ZHvS1Cwk1B4
 
 - [x] **Sticky offer bar**, gated on **3 minutes of watched video** (Lucas's call — engagement
       gate, not a timer on the page). Hides again when the real offer block is on screen.
-- [x] **Click-to-play poster** replacing the YouTube iframe. Posters are served from
-      `public/posters/`, so nothing third-party loads until she taps.
+- [x] ~~Click-to-play poster~~ — **built then reverted** the same day (`dd86c1c`). iOS blocks
+      autoplay with sound, so it cost two taps and felt worse on slow connections. The embed
+      loads directly again. Kept `youtube-nocookie`, which removes every doubleclick/ad request
+      at no UX cost (measured: 19 requests with ad hosts vs 16 with none).
 - [x] **Video widened** 280 → 330 px.
 - [x] **Score de-duplicated** — "36" over "de 72 pontos".
 

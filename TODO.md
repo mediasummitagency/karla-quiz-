@@ -51,21 +51,21 @@ unfalsifiable — including the ones proposed below.
 
 ---
 
-## Proposed but not approved
+## Done 2026-09-15 — all four display changes
 
-From the display/CRO review, 2026-09-15 — preview:
+Approved by Lucas and shipped in commit `979d3db`. Preview of the original proposals:
 https://claude.ai/artifact/38BL3uf5rZ1ZHvS1Cwk1B4
 
-Lucas has not picked any of these yet. Measured, not estimated.
+- [x] **Sticky offer bar**, gated on **3 minutes of watched video** (Lucas's call — engagement
+      gate, not a timer on the page). Hides again when the real offer block is on screen.
+- [x] **Click-to-play poster** replacing the YouTube iframe. Posters are served from
+      `public/posters/`, so nothing third-party loads until she taps.
+- [x] **Video widened** 280 → 330 px.
+- [x] **Score de-duplicated** — "36" over "de 72 pontos".
 
-- [ ] **Sticky offer bar** after the video. The CTA sits at 2,384 px on a 2,469 px page — the
-      last 3%, 2.8 phone screens down. Biggest single lever on the page.
-- [ ] **Click-to-play still** instead of the YouTube iframe. The embed fires 13 requests on
-      load including `googleads.g.doubleclick.net`, before she presses play.
-- [ ] **Widen the result video** 280 → ~330 px. Currently 72% of a 390 px screen.
-- [ ] **De-duplicate the score.** Reads "36", then "36 / 72" one line below.
-
----
+Still unmeasurable until item 1 above is done: there is no analytics, so none of this can be
+graded. `offer_viewed` and `checkout_click` should also distinguish the sticky bar from the
+bottom button, otherwise the gate's effect is invisible.
 
 ## Waiting on Karla
 

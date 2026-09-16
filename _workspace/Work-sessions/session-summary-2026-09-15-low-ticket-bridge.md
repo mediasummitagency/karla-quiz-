@@ -72,6 +72,28 @@ page was ending at the high-ticket step; it now ends at the low-ticket step.
 `margin: 40px auto 32px`. One shared class, so it lands on all four levels at once — measured at
 40px on Leve, Alerta, Elevada and Crítica.
 
+## Second pass — the four display changes (commit `979d3db`)
+
+Lucas reviewed a CRO preview (https://claude.ai/artifact/38BL3uf5rZ1ZHvS1Cwk1B4) and approved all
+four, with one change to the first: the sticky offer bar appears only after **3 minutes of
+watched video**, not on scroll position.
+
+- **Sticky bar**, gated on playback. Counts only ticks while the YT player reports `PLAYING`, so
+  seeking ahead does not buy it. Hides again when the real offer block is in view.
+- **Click-to-play poster** replacing the iframe. Posters live in `public/posters/<videoId>.jpg`;
+  nothing third-party loads until she taps, verified on all four levels. The old embed fired 13
+  requests on load including `googleads.g.doubleclick.net`.
+- **Video 280 → 330 px**, **score de-duplicated**.
+
+Two things worth remembering. The bar had to be **portalled to `document.body`** — the result
+section carries a transform from its entry animation, and a transformed ancestor becomes the
+containing block for `position: fixed`, which parked the bar 1587px down its own section. And
+YouTube's thumbnails for these vertical videos come back 1280×720 with the real frame
+pillarboxed in a blurred strip, so each poster is the centre `H*9/16` crop.
+
+Verified end-to-end against a real YouTube player with the threshold temporarily at 5s, then
+restored to 180.
+
 ## Not deployed
 
 Changes are uncommitted on `main`. Pushing to `main` triggers the Hostinger FTP deploy via GitHub

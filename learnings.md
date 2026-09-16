@@ -33,3 +33,10 @@ there changes all four result levels at once; only `devolutiva`/`videoId` are le
 TRIGGER: Karla asked for the low-ticket bridge on "todos os resultados do teste gratuito". | FIX:
 Edit the shared block once; no per-level duplication needed. See
 `_workspace/Work-sessions/session-summary-2026-09-15-low-ticket-bridge.md`.
+
+[2026-09-15] LESSON: The result page's four YouTube lessons run 8:13-9:59, so an engagement gate
+of 3 min is safely inside all of them — but any new/shorter video would silently make the sticky
+offer bar unreachable. | TRIGGER: Karla asked for the offer bar to appear only after 3 min of
+watched video. | FIX: `STICKY_AFTER_SECONDS` in `App.jsx`; re-check durations
+(`curl` the watch page, grep `lengthSeconds`) whenever a result video is swapped, e.g. when she
+re-records the aula.

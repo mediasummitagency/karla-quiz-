@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 // ============ CONFIGURATION (update these as needed) ============
 const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyzvpm7uPCkeyLx3nZYOJ_3t5bDU6xw9wD7H6_30r9ZyHniVJHLrA1lZOMYY8G2wNfHEQ/exec'
 // Checkout do low ticket "Raiz da Sobrecarga" (Kiwify)
 const CHECKOUT_URL = 'https://pay.kiwify.com.br/zftB1uv'
+// A barra fixa da oferta só aparece depois deste tanto de vídeo ASSISTIDO (não de tempo na
+// página). Os quatro vídeos têm de 8 a 10 minutos, então 3 min é cerca de um terço da aula.
+const STICKY_AFTER_SECONDS = 180
 
 // ============ QUIZ DATA ============
 const SCALE_LABELS = ['Nunca', 'Raramente', 'Às vezes', 'Frequentemente', 'Sempre']
@@ -113,10 +117,87 @@ export default function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [formData, setFormData] = useState({ nome: '', email: '', whatsapp: '' })
   const [photoError, setPhotoError] = useState(false)
+  const [videoPlaying, setVideoPlaying] = useState(false)
+  const [watchedEnough, setWatchedEnough] = useState(false)
+  const [offerInView, setOfferInView] = useState(false)
 
   useEffect(() => {
     if (screen === 'result' || screen === 'intro') setPhotoError(false)
+    if (screen !== 'result') {
+      setVideoPlaying(false)
+      setWatchedEnough(false)
+      setOfferInView(false)
+    }
   }, [screen])
+
+  // Once she presses play we load YouTube's iframe API and count only the seconds the player is
+  // actually PLAYING — ticks, not getCurrentTime(), so skipping ahead does not buy her the bar.
+  useEffect(() => {
+    if (!videoPlaying || watchedEnough) return
+
+    let player
+    let ticker
+    let watched = 0
+    let cancelled = false
+
+    const startCounting = () => {
+      clearInterval(ticker)
+      ticker = setInterval(() => {
+        watched += 1
+        if (watched >= STICKY_AFTER_SECONDS) {
+          clearInterval(ticker)
+          setWatchedEnough(true)
+        }
+      }, 1000)
+    }
+
+    const build = () => {
+      if (cancelled || !window.YT || !window.YT.Player) return
+      player = new window.YT.Player('result-video-player', {
+        events: {
+          onStateChange: (e) => {
+            if (e.data === window.YT.PlayerState.PLAYING) startCounting()
+            else clearInterval(ticker)
+          },
+        },
+      })
+    }
+
+    if (window.YT && window.YT.Player) {
+      build()
+    } else {
+      const prev = window.onYouTubeIframeAPIReady
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof prev === 'function') prev()
+        build()
+      }
+      if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+        const tag = document.createElement('script')
+        tag.src = 'https://www.youtube.com/iframe_api'
+        document.body.appendChild(tag)
+      }
+    }
+
+    return () => {
+      cancelled = true
+      clearInterval(ticker)
+      if (player && player.destroy) player.destroy()
+    }
+  }, [videoPlaying, watchedEnough])
+
+  // Hide the sticky bar once the real offer block is on screen, so she never sees two buttons
+  // for the same thing at the same time.
+  useEffect(() => {
+    if (screen !== 'result' || !watchedEnough) return
+    const target = document.querySelector('.offer-bridge')
+    if (!target || !('IntersectionObserver' in window)) return
+    const obs = new IntersectionObserver(
+      ([entry]) => setOfferInView(entry.isIntersecting),
+      { threshold: 0.12 }
+    )
+    obs.observe(target)
+    return () => obs.disconnect()
+  }, [screen, watchedEnough])
 
   // The result screen reveals itself on a timed stagger (up to ~3.8s for the CTA). That reads well
   // if you sit and watch, but anyone who scrolls ahead meets a blank page, because the blocks below
@@ -374,11 +455,7 @@ export default function App() {
               </svg>
               <div className="score-arc-center">
                 <span className="score-arc-number">{score}</span>
-                <span className="score-arc-ratio">
-                  <span className="score-arc-ratio-score">{score}</span>
-                  <span className="score-arc-ratio-rest"> / 72</span>
-                </span>
-                <span className="score-arc-label">pontos</span>
+                <span className="score-arc-scale">de 72 pontos</span>
               </div>
               <span className={`level-badge ${resultLevel.badgeClass}`}>{resultLevel.badge}</span>
             </div>
@@ -403,13 +480,34 @@ export default function App() {
             {/* 3.5 PERSONAL VIDEO MESSAGE */}
             {resultLevel.videoId && (
               <div className="result-video-wrapper" style={{ animationDelay: `${videoDelay}ms` }}>
-                <iframe
-                  className="result-video"
-                  src={`https://www.youtube.com/embed/${resultLevel.videoId}?rel=0`}
-                  title={resultLevel.videoTitle || `Mensagem em vídeo de Karla Arantes — ${resultLevel.name}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                {videoPlaying ? (
+                  <iframe
+                    id="result-video-player"
+                    className="result-video"
+                    src={`https://www.youtube-nocookie.com/embed/${resultLevel.videoId}?rel=0&autoplay=1&enablejsapi=1&playsinline=1`}
+                    title={resultLevel.videoTitle || `Mensagem em vídeo de Karla Arantes — ${resultLevel.name}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  /* Nada da YouTube é carregado até ela tocar aqui — o pôster é nosso, servido do
+                     próprio site, então a página não fala com servidor de anúncio nenhum antes disso. */
+                  <button
+                    type="button"
+                    className="result-video-poster"
+                    onClick={() => setVideoPlaying(true)}
+                    aria-label={`Assistir à aula de Karla Arantes — ${resultLevel.name}`}
+                  >
+                    <img
+                      src={`/posters/${resultLevel.videoId}.jpg`}
+                      alt=""
+                      width={540}
+                      height={960}
+                      loading="lazy"
+                    />
+                    <span className="result-video-play" aria-hidden="true" />
+                  </button>
+                )}
               </div>
             )}
 
@@ -480,6 +578,28 @@ export default function App() {
                 Quero descobrir minha raiz
               </button>
             </section>
+
+            {/* Barra fixa da oferta — só depois de 3 min de aula assistida, e some quando o bloco
+                da oferta aparece na tela, para nunca haver dois botões iguais ao mesmo tempo. */}
+            {watchedEnough &&
+              /* Precisa sair via portal para o body: a seção do resultado tem `transform` (da
+                 animação de entrada), e um ancestral com transform vira o bloco de referência do
+                 `position: fixed` — dentro dela a barra ancorava na seção, fora da tela. */
+              createPortal(
+                <div
+                  className={`offer-sticky${offerInView ? ' is-hidden' : ''}`}
+                  role="region"
+                  aria-label="Raiz da Sobrecarga"
+                >
+                  <span className="offer-sticky-label">
+                    Raiz da Sobrecarga<sup>®</sup>
+                  </span>
+                  <button type="button" className="offer-sticky-btn" onClick={handleCheckoutClick}>
+                    Quero descobrir minha raiz
+                  </button>
+                </div>,
+                document.body
+              )}
           </section>
         )}
       </main>

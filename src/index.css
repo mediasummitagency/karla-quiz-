@@ -613,6 +613,18 @@ body {
   pointer-events: none;
 }
 
+.score-arc-scale {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--color-text-primary);
+  opacity: 0.5;
+  margin-top: 0.3rem;
+  white-space: nowrap;
+}
+
 .score-arc-number {
   font-family: var(--font-display);
   font-size: 3rem;
@@ -621,35 +633,9 @@ body {
   line-height: 1;
 }
 
-.score-arc-ratio {
-  font-family: var(--font-display);
-  font-size: 28px;
-  font-weight: 600;
-  line-height: 1;
-  margin-top: 0.15rem;
-  white-space: nowrap;
-}
 
-.score-arc-ratio-score {
-  color: var(--color-primary);
-}
 
-.score-arc-ratio-rest {
-  opacity: 0.45;
-  color: var(--color-text-primary);
-}
 
-.score-arc-label {
-  display: block;
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  opacity: 0.4;
-  color: var(--color-text-primary);
-  margin-top: 0.35rem;
-}
 
 /* 2. LEVEL BADGE */
 .level-badge {
@@ -739,7 +725,7 @@ body {
    content — no re-export needed on her end. */
 .result-video-wrapper {
   width: 100%;
-  max-width: 280px;
+  max-width: 330px;
   aspect-ratio: 9 / 16;
   /* generous top gap so the video does not crowd the paragraph above it */
   margin: 40px auto 32px;
@@ -1035,4 +1021,155 @@ body {
    important author rule is what outranks a normal inline declaration. */
 .reveal-now {
   animation-delay: 0s !important;
+}
+
+
+/* ============ PÔSTER DO VÍDEO (click-to-play) ============ */
+.result-video-poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: #000;
+  cursor: pointer;
+  display: block;
+  overflow: hidden;
+}
+
+.result-video-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.result-video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 62px;
+  height: 62px;
+  border-radius: 9999px;
+  background: rgba(253, 250, 247, 0.93);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+/* triângulo de play, óptico-centrado (margin-left compensa o peso visual à esquerda) */
+.result-video-play::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin-left: 3px;
+  border-left: 19px solid var(--color-primary);
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+}
+
+.result-video-poster:hover .result-video-play {
+  transform: translate(-50%, -50%) scale(1.06);
+  background: #fff;
+}
+
+.result-video-poster:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: -3px;
+}
+
+/* ============ BARRA FIXA DA OFERTA ============ */
+.offer-sticky {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(253, 250, 247, 0.97);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(212, 184, 150, 0.7);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.07);
+  animation: offer-sticky-in 0.35s ease forwards;
+}
+
+.offer-sticky.is-hidden {
+  animation: offer-sticky-out 0.25s ease forwards;
+  pointer-events: none;
+}
+
+.offer-sticky-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--color-text-primary);
+}
+
+.offer-sticky-btn {
+  flex: 0 0 auto;
+  padding: 11px 18px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--color-primary);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: transform 100ms ease, background var(--transition-fast);
+}
+
+.offer-sticky-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.offer-sticky-btn:active {
+  transform: scale(0.97);
+}
+
+.offer-sticky-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* telas bem estreitas: o rótulo cede espaço para o botão caber inteiro */
+@media (max-width: 360px) {
+  .offer-sticky-label {
+    display: none;
+  }
+  .offer-sticky-btn {
+    width: 100%;
+  }
+}
+
+@keyframes offer-sticky-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes offer-sticky-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .offer-sticky,
+  .offer-sticky.is-hidden {
+    animation: none;
+  }
+  .offer-sticky.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
 }

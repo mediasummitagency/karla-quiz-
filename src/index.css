@@ -741,7 +741,8 @@ body {
   width: 100%;
   max-width: 280px;
   aspect-ratio: 9 / 16;
-  margin: 0 auto 32px;
+  /* generous top gap so the video does not crowd the paragraph above it */
+  margin: 40px auto 32px;
   border-radius: 16px;
   overflow: hidden;
   position: relative;
@@ -935,14 +936,6 @@ body {
   margin-bottom: 10px;
 }
 
-.offer-bridge-price {
-  margin: 14px 0 0;
-  font-family: var(--font-body);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-  text-align: center;
-}
 
 /* 5. CTA NUDGE */
 .cta-nudge {

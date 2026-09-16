@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyzvpm7uPCkeyLx3nZYOJ_3t5bDU6xw9wD7H6_30r9ZyHniVJHLrA1lZOMYY8G2wNfHEQ/exec'
 // Checkout do low ticket "Raiz da Sobrecarga" (Kiwify)
 const CHECKOUT_URL = 'https://pay.kiwify.com.br/zftB1uv'
-const CHECKOUT_PRICE = 'R$47 • Acesso digital'
 
 // ============ QUIZ DATA ============
 const SCALE_LABELS = ['Nunca', 'Raramente', 'Às vezes', 'Frequentemente', 'Sempre']
@@ -443,7 +442,6 @@ export default function App() {
               >
                 Quero descobrir minha raiz
               </button>
-              <p className="offer-bridge-price">{CHECKOUT_PRICE}</p>
             </section>
           </section>
         )}

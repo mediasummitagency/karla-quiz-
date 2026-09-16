@@ -55,12 +55,22 @@ page was ending at the high-ticket step; it now ends at the low-ticket step.
 
 ## Open / needs Karla
 
-- **Price.** The voice note says "37 ou 47 reais, sei lá"; her 2026-09-04 written message says
-  "R$47 • Acesso digital". Built at **R$47** — one string, `CHECKOUT_PRICE` in `App.jsx`.
+- **Price is no longer shown on the page.** Built at R$47 first, then Lucas asked for the
+  "R$47 • Acesso digital" line to be removed, so `CHECKOUT_PRICE` and `.offer-bridge-price` are
+  gone and the button is the last element. Sidesteps the 37-vs-47 question entirely — the price
+  now only appears on the Kiwify checkout. If Karla wants it back on the page, it is a new line
+  under the button.
 - **The WhatsApp button is gone from the quiz entirely**, which is what she asked for. There is now
   no direct path from the free test to psicoterapia; it routes through the low ticket. Consistent
   with her own esteira, but worth confirming she means it.
 - She is re-recording the low-ticket aula. Doesn't block this page.
+
+## Spacing fix in the same pass
+
+`.result-video-wrapper` had `margin: 0 auto 32px` and `.devolutiva-para:last-child` has
+`margin-bottom: 0`, so the video sat flush against the paragraph above it with a zero gap. Set to
+`margin: 40px auto 32px`. One shared class, so it lands on all four levels at once — measured at
+40px on Leve, Alerta, Elevada and Crítica.
 
 ## Not deployed
 

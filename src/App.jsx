@@ -117,14 +117,12 @@ export default function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [formData, setFormData] = useState({ nome: '', email: '', whatsapp: '' })
   const [photoError, setPhotoError] = useState(false)
-  const [videoPlaying, setVideoPlaying] = useState(false)
   const [watchedEnough, setWatchedEnough] = useState(false)
   const [offerInView, setOfferInView] = useState(false)
 
   useEffect(() => {
     if (screen === 'result' || screen === 'intro') setPhotoError(false)
     if (screen !== 'result') {
-      setVideoPlaying(false)
       setWatchedEnough(false)
       setOfferInView(false)
     }
@@ -133,7 +131,9 @@ export default function App() {
   // Once she presses play we load YouTube's iframe API and count only the seconds the player is
   // actually PLAYING — ticks, not getCurrentTime(), so skipping ahead does not buy her the bar.
   useEffect(() => {
-    if (!videoPlaying || watchedEnough) return
+    // `resultLevel` is declared further down, so key off the rendered iframe instead of it.
+    if (screen !== 'result' || watchedEnough) return
+    if (!document.getElementById('result-video-player')) return
 
     let player
     let ticker
@@ -183,7 +183,7 @@ export default function App() {
       clearInterval(ticker)
       if (player && player.destroy) player.destroy()
     }
-  }, [videoPlaying, watchedEnough])
+  }, [screen, watchedEnough])
 
   // Hide the sticky bar once the real offer block is on screen, so she never sees two buttons
   // for the same thing at the same time.
@@ -480,34 +480,18 @@ export default function App() {
             {/* 3.5 PERSONAL VIDEO MESSAGE */}
             {resultLevel.videoId && (
               <div className="result-video-wrapper" style={{ animationDelay: `${videoDelay}ms` }}>
-                {videoPlaying ? (
-                  <iframe
-                    id="result-video-player"
-                    className="result-video"
-                    src={`https://www.youtube-nocookie.com/embed/${resultLevel.videoId}?rel=0&autoplay=1&enablejsapi=1&playsinline=1`}
-                    title={resultLevel.videoTitle || `Mensagem em vídeo de Karla Arantes — ${resultLevel.name}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  /* Nada da YouTube é carregado até ela tocar aqui — o pôster é nosso, servido do
-                     próprio site, então a página não fala com servidor de anúncio nenhum antes disso. */
-                  <button
-                    type="button"
-                    className="result-video-poster"
-                    onClick={() => setVideoPlaying(true)}
-                    aria-label={`Assistir à aula de Karla Arantes — ${resultLevel.name}`}
-                  >
-                    <img
-                      src={`/posters/${resultLevel.videoId}.jpg`}
-                      alt=""
-                      width={540}
-                      height={960}
-                      loading="lazy"
-                    />
-                    <span className="result-video-play" aria-hidden="true" />
-                  </button>
-                )}
+                {/* Embed direto, um toque só. Um pôster click-to-play foi tentado e revertido em
+                    2026-09-15: no iOS o autoplay com som é bloqueado, então dava dois toques.
+                    Fica o domínio -nocookie, que corta as chamadas de anúncio sem custo nenhum,
+                    e o enablejsapi, que a barra da oferta usa para contar tempo assistido. */}
+                <iframe
+                  id="result-video-player"
+                  className="result-video"
+                  src={`https://www.youtube-nocookie.com/embed/${resultLevel.videoId}?rel=0&enablejsapi=1&playsinline=1`}
+                  title={resultLevel.videoTitle || `Mensagem em vídeo de Karla Arantes — ${resultLevel.name}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
               </div>
             )}
 

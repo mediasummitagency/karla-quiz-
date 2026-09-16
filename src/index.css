@@ -1024,63 +1024,6 @@ body {
 }
 
 
-/* ============ PÔSTER DO VÍDEO (click-to-play) ============ */
-.result-video-poster {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: none;
-  background: #000;
-  cursor: pointer;
-  display: block;
-  overflow: hidden;
-}
-
-.result-video-poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.result-video-play {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 62px;
-  height: 62px;
-  border-radius: 9999px;
-  background: rgba(253, 250, 247, 0.93);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
-  transition: transform var(--transition-fast), background var(--transition-fast);
-}
-
-/* triângulo de play, óptico-centrado (margin-left compensa o peso visual à esquerda) */
-.result-video-play::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin-left: 3px;
-  border-left: 19px solid var(--color-primary);
-  border-top: 12px solid transparent;
-  border-bottom: 12px solid transparent;
-}
-
-.result-video-poster:hover .result-video-play {
-  transform: translate(-50%, -50%) scale(1.06);
-  background: #fff;
-}
-
-.result-video-poster:focus-visible {
-  outline: 3px solid var(--color-primary);
-  outline-offset: -3px;
-}
-
 /* ============ BARRA FIXA DA OFERTA ============ */
 .offer-sticky {
   position: fixed;

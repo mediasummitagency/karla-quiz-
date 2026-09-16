@@ -118,6 +118,43 @@ export default function App() {
     if (screen === 'result' || screen === 'intro') setPhotoError(false)
   }, [screen])
 
+  // The result screen reveals itself on a timed stagger (up to ~3.8s for the CTA). That reads well
+  // if you sit and watch, but anyone who scrolls ahead meets a blank page, because the blocks below
+  // the fold are still at opacity 0. So: once she scrolls, drop the remaining delays for anything
+  // at or near the viewport, and let the stagger play out untouched for anyone who waits.
+  useEffect(() => {
+    if (screen !== 'result') return
+
+    let observer
+    const revealOnScroll = () => {
+      window.removeEventListener('scroll', revealOnScroll)
+      const pending = document.querySelectorAll(
+        '.devolutiva-para, .result-video-wrapper, .result-signature, .offer-bridge, .offer-bridge .cta-button'
+      )
+      if (!('IntersectionObserver' in window)) {
+        pending.forEach((el) => el.classList.add('reveal-now'))
+        return
+      }
+      observer = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return
+            entry.target.classList.add('reveal-now')
+            obs.unobserve(entry.target)
+          })
+        },
+        { rootMargin: '0px 0px 25% 0px' }
+      )
+      pending.forEach((el) => observer.observe(el))
+    }
+
+    window.addEventListener('scroll', revealOnScroll, { passive: true, once: false })
+    return () => {
+      window.removeEventListener('scroll', revealOnScroll)
+      if (observer) observer.disconnect()
+    }
+  }, [screen])
+
   useEffect(() => {
     if (screen === 'quiz') {
       document.body.classList.add('quiz-active')

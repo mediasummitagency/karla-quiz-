@@ -1029,3 +1029,10 @@ body {
 .restart-btn:active {
   transform: scale(0.97);
 }
+
+/* Scroll cancels any pending reveal delay — see the result-screen effect in App.jsx.
+   !important is deliberate: these delays are set as inline styles and CSS vars, and an
+   important author rule is what outranks a normal inline declaration. */
+.reveal-now {
+  animation-delay: 0s !important;
+}

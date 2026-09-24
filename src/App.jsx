@@ -6,9 +6,16 @@ import { initTracking, track, buildCheckoutUrl } from './tracking'
 const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyzvpm7uPCkeyLx3nZYOJ_3t5bDU6xw9wD7H6_30r9ZyHniVJHLrA1lZOMYY8G2wNfHEQ/exec'
 // Checkout do low ticket "Raiz da Sobrecarga" (Kiwify)
 const CHECKOUT_URL = 'https://pay.kiwify.com.br/zftB1uv'
-// A barra fixa da oferta só aparece depois deste tanto de vídeo ASSISTIDO (não de tempo na
-// página). Os quatro vídeos têm de 8 a 10 minutos, então 3 min é cerca de um terço da aula.
-const STICKY_AFTER_SECONDS = 180
+
+// ============ RAIZ DA SOBRECARGA — RESULT PAGE CONTENT ============
+// Comando da Karla: _workspace/inputs/2026-09-24-karla-comando-pagina-resultado.md
+// Bloco 6: um segundo vídeo específico de apresentação do Raiz (não a devolutiva do Bloco 2).
+// Vazio = o bloco inteiro não renderiza — a Karla proíbe placeholders (regras 19-23).
+const RAIZ_VIDEO_ID = ''
+// Bloco 11: 2 a 4 depoimentos reais e autorizados. Nunca inventar. Vazio = bloco não renderiza.
+const TESTIMONIALS = [] // [{ quote: '', name: '' }]
+// Bloco 15: imagens reais do produto. Nunca placeholder. Vazio = bloco não renderiza.
+const PRODUCT_SHOTS = [] // [{ label: '', caption: '' }]
 
 // ============ QUIZ DATA ============
 const SCALE_LABELS = ['Nunca', 'Raramente', 'Às vezes', 'Frequentemente', 'Sempre']
@@ -86,6 +93,175 @@ function getResultLevel(score) {
   return RESULT_LEVELS.find((l) => score >= l.min && score <= l.max) || RESULT_LEVELS[0]
 }
 
+// ============ RAIZ DA SOBRECARGA — RESULT PAGE COPY (verbatim from Karla's brief) ============
+const BLOCK1_PARAS = [
+  'O seu resultado mostra o quanto a sobrecarga está presente na sua vida neste momento.',
+  'Mas ele não mostra tudo.',
+  'Ele não mostra o que acontece dentro de você quando uma nova demanda aparece.',
+  'Não mostra por que algumas coisas parecem tão difíceis de recusar, delegar ou deixar para depois.',
+  'E não mostra por que, mesmo quando você sabe que está cansada, pode continuar funcionando da mesma maneira.',
+]
+
+const BLOCK3_PARAS = [
+  'Por que você continua funcionando dessa maneira, mesmo quando já sabe que está cansada?',
+  'Talvez você já tenha tentado descansar mais.',
+  'Organizar melhor a rotina.',
+  'Fazer listas.',
+  'Criar hábitos.',
+  'Colocar limites.',
+  'E talvez algumas dessas coisas até tenham funcionado por algum tempo.',
+  'Mas depois você voltou para o mesmo lugar.',
+  'Não necessariamente porque falta organização.',
+  'Nem porque falta força de vontade.',
+  'Talvez exista uma forma aprendida de responder às demandas, às expectativas e às próprias necessidades que continua funcionando mesmo quando você já percebeu que está cansada.',
+]
+
+const BLOCK4_PARAS = [
+  'Porque nem sempre o que mantém uma mulher sobrecarregada é apenas a quantidade de coisas que ela precisa fazer.',
+  'Às vezes, existe uma forma aprendida de responder às demandas, às expectativas e às próprias necessidades.',
+  'E enquanto esse funcionamento permanece automático, você pode continuar tentando resolver a superfície sem perceber o que está por trás dela.',
+]
+
+const BLOCK5_PARAS = [
+  'Uma experiência guiada de autorreflexão para ajudar você a identificar o padrão que aparece com mais força na sua forma de responder às demandas, às expectativas e às próprias necessidades.',
+  'O Raiz parte das suas respostas e conduz você para uma camada mais profunda de compreensão.',
+  'Não é outra escala para medir o quanto você está cansada.',
+  'É uma experiência para começar a investigar:',
+  'Como você costuma responder quando uma demanda aparece.',
+  'O que acontece dentro de você antes de dizer "sim", assumir, adiar ou continuar.',
+  'Quais pensamentos e emoções podem estar participando desse funcionamento.',
+  'E qual pode ser um primeiro movimento possível.',
+]
+
+const BLOCK7_PHRASES = [
+  '"Se eu não fizer, ninguém faz."',
+  '"Eu preciso provar que consigo."',
+  '"Se não ficou como deveria, não está bom."',
+  '"Eu poderia estar fazendo mais."',
+  '"Isso é importante para mim. Mas pode esperar."',
+]
+
+const BLOCK8_LINES = ['Você resolve.', 'Entrega.', 'Cuida.', 'Antecipa.', 'Assume.', 'Adia suas próprias necessidades.', 'Continua.']
+
+const ROOT_ITEMS = [
+  { quote: '"Se eu não resolver, ninguém resolve."', name: 'A que precisa dar conta' },
+  { quote: '"Se eu conseguir, ninguém vai duvidar de mim."', name: 'A que precisa provar' },
+  { quote: '"Se não ficou como deveria, não conta."', name: 'A que precisa fazer perfeito' },
+  { quote: '"Eu poderia estar fazendo mais."', name: 'A que precisa estar sempre avançando' },
+  { quote: '"Isso é importante para mim. Mas pode esperar."', name: 'A que se coloca por último' },
+]
+
+const RAIZ_IS_ITEMS = [
+  'identificar o padrão que aparece com mais força;',
+  'compreender como esse padrão pode participar da sua sobrecarga;',
+  'reconhecer o ciclo de pensamentos, emoções e comportamentos envolvidos;',
+  'experimentar um primeiro movimento possível na vida real.',
+]
+
+const STEP_ITEMS = [
+  { n: 1, k: 'SINAL', text: 'O que está pesando em você agora.' },
+  { n: 2, k: 'RAIZ', text: 'O padrão que pode estar alimentando a forma como você responde.' },
+  {
+    n: 3,
+    k: 'CICLO',
+    text: 'Pensamento, emoção e comportamento, para você perceber o que pode manter a sobrecarga acontecendo.',
+  },
+  { n: 4, k: 'DIREÇÃO', text: 'Um primeiro movimento pequeno e concreto, que faça sentido para você.' },
+]
+
+const DELIVER_ITEMS = [
+  {
+    k: 'SEU MAPA DE PADRÃO',
+    text: 'Uma devolutiva correspondente ao padrão que apareceu com mais força nas suas respostas.',
+  },
+  {
+    k: 'A EXPLICAÇÃO DA SUA RAIZ',
+    text: 'Uma reflexão sobre por que determinadas situações podem despertar cobrança, culpa, controle ou dificuldade de se priorizar.',
+  },
+  {
+    k: 'O DESENHO DO SEU CICLO',
+    text: 'Uma representação de pensamento, emoção e comportamento para você enxergar o que pode manter a sobrecarga acontecendo.',
+  },
+  {
+    k: 'SEU PRIMEIRO MOVIMENTO',
+    text: 'Uma prática pequena e concreta, em vez de uma lista interminável de hábitos.',
+  },
+  { k: 'EXERCÍCIOS DE REFLEXÃO', text: 'Perguntas para levar o que você percebeu para a sua vida real.' },
+]
+
+const FIT_ITEMS = [
+  'Está cansada de precisar dar conta de tudo.',
+  'Sabe que deveria se colocar na própria lista, mas na prática não consegue sustentar isso.',
+  'Quer entender o que está acontecendo antes de tentar mais uma técnica.',
+  'Percebe que algumas formas de responder às demandas se repetem, mesmo quando você sabe que está cansada.',
+]
+
+const NOT_ITEMS = [
+  'Terapia ou diagnóstico psicológico.',
+  'Uma promessa de eliminar a sobrecarga.',
+  'Uma fórmula para fazer você simplesmente "dar conta melhor".',
+  'Mais uma rotina para você conseguir cumprir.',
+]
+
+const OFFER_LIST_ITEMS = [
+  'identificar o padrão que aparece com mais força;',
+  'compreender como ele pode participar da sua sobrecarga;',
+  'enxergar o ciclo que sustenta esse funcionamento;',
+  'experimentar um primeiro movimento possível.',
+]
+
+const FAQ_ITEMS = [
+  {
+    q: 'Isso é terapia?',
+    a: [
+      'Não.',
+      'O Raiz da Sobrecarga® é uma experiência guiada de psicoeducação e autorreflexão.',
+      'Ele não é diagnóstico psicológico e não substitui psicoterapia.',
+    ],
+  },
+  {
+    q: 'E se eu não me identificar com o resultado?',
+    a: [
+      'O resultado representa o padrão que apareceu com mais força nas suas respostas.',
+      'Você pode perceber elementos de outros padrões também.',
+      'A proposta não é colocar você em uma caixa, mas oferecer uma hipótese de reflexão para que você observe o que faz sentido na sua vida.',
+    ],
+  },
+  {
+    q: 'Como eu recebo?',
+    a: ['Após a confirmação do pagamento, você recebe acesso à Área de Membros e as orientações para começar.'],
+  },
+  {
+    q: 'Quanto tempo leva?',
+    a: [
+      'A experiência começa com o questionário de autorreflexão.',
+      'Depois, você pode fazer as etapas ao longo de 7 dias, no seu próprio ritmo.',
+    ],
+  },
+  {
+    q: 'Preciso fazer tudo de uma vez?',
+    a: ['Não.', 'A proposta é justamente observar, refletir e experimentar aos poucos.'],
+  },
+  {
+    q: 'E se eu já faço terapia?',
+    a: [
+      'O Raiz pode ser utilizado como uma experiência de autorreflexão.',
+      'Se você já faz psicoterapia, pode conversar com sua psicóloga sobre como as percepções que surgirem aqui se relacionam ao seu processo.',
+    ],
+  },
+]
+
+const CLOSE_PARAS = [
+  'Talvez você continue tentando resolver a sobrecarga apenas pela superfície.',
+  'Mais organização.',
+  'Mais planejamento.',
+  'Mais esforço.',
+  'Mais uma tentativa de dar conta.',
+  'Mas talvez esteja na hora de olhar para a forma como você aprendeu a responder às demandas, às expectativas e às suas próprias necessidades.',
+  'Você não precisa mudar tudo hoje.',
+  'Precisa apenas começar a enxergar.',
+]
+
 // Masks input as a Brazilian mobile number with DDD: (11) 99999-9999
 function formatWhatsApp(raw) {
   const digits = raw.replace(/\D/g, '').slice(0, 11)
@@ -118,8 +294,12 @@ export default function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [formData, setFormData] = useState({ nome: '', email: '', whatsapp: '' })
   const [photoError, setPhotoError] = useState(false)
-  const [watchedEnough, setWatchedEnough] = useState(false)
-  const [offerInView, setOfferInView] = useState(false)
+  // Barra fixa da oferta (regra 33 do comando da Karla, decisão 2026-09-24): não é mais um
+  // gate por tempo de vídeo assistido. Aparece depois que o Bloco 5 (primeiro CTA) já passou
+  // pela tela uma vez, e some sempre que qualquer um dos 4 blocos de CTA está visível.
+  const [stickyRevealed, setStickyRevealed] = useState(false)
+  const [ctaBlockVisible, setCtaBlockVisible] = useState(false)
+  const [selectedRoots, setSelectedRoots] = useState(() => new Set())
   const offerViewedFiredRef = useRef(false)
 
   useEffect(() => {
@@ -129,94 +309,34 @@ export default function App() {
   useEffect(() => {
     if (screen === 'result' || screen === 'intro') setPhotoError(false)
     if (screen !== 'result') {
-      setWatchedEnough(false)
-      setOfferInView(false)
+      setStickyRevealed(false)
+      setCtaBlockVisible(false)
+      setSelectedRoots(new Set())
       offerViewedFiredRef.current = false
     }
   }, [screen])
 
-  // Once she presses play we load YouTube's iframe API and count only the seconds the player is
-  // actually PLAYING — ticks, not getCurrentTime(), so skipping ahead does not buy her the bar.
-  useEffect(() => {
-    // `resultLevel` is declared further down, so key off the rendered iframe instead of it.
-    if (screen !== 'result' || watchedEnough) return
-    if (!document.getElementById('result-video-player')) return
+  const toggleRoot = (i) => {
+    setSelectedRoots((prev) => {
+      const next = new Set(prev)
+      if (next.has(i)) next.delete(i)
+      else next.add(i)
+      return next
+    })
+  }
 
-    let player
-    let ticker
-    let watched = 0
-    let cancelled = false
-
-    const startCounting = () => {
-      clearInterval(ticker)
-      ticker = setInterval(() => {
-        watched += 1
-        if (watched >= STICKY_AFTER_SECONDS) {
-          clearInterval(ticker)
-          setWatchedEnough(true)
-        }
-      }, 1000)
-    }
-
-    const build = () => {
-      if (cancelled || !window.YT || !window.YT.Player) return
-      player = new window.YT.Player('result-video-player', {
-        events: {
-          onStateChange: (e) => {
-            if (e.data === window.YT.PlayerState.PLAYING) startCounting()
-            else clearInterval(ticker)
-          },
-        },
-      })
-    }
-
-    if (window.YT && window.YT.Player) {
-      build()
-    } else {
-      const prev = window.onYouTubeIframeAPIReady
-      window.onYouTubeIframeAPIReady = () => {
-        if (typeof prev === 'function') prev()
-        build()
-      }
-      if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
-        const tag = document.createElement('script')
-        tag.src = 'https://www.youtube.com/iframe_api'
-        document.body.appendChild(tag)
-      }
-    }
-
-    return () => {
-      cancelled = true
-      clearInterval(ticker)
-      if (player && player.destroy) player.destroy()
-    }
-  }, [screen, watchedEnough])
-
-  // Hide the sticky bar once the real offer block is on screen, so she never sees two buttons
-  // for the same thing at the same time. Gated on watchedEnough because the sticky bar itself
-  // only exists once watchedEnough is true.
-  useEffect(() => {
-    if (screen !== 'result' || !watchedEnough) return
-    const target = document.querySelector('.offer-bridge')
-    if (!target || !('IntersectionObserver' in window)) return
-    const obs = new IntersectionObserver(
-      ([entry]) => setOfferInView(entry.isIntersecting),
-      { threshold: 0.12 }
-    )
-    obs.observe(target)
-    return () => obs.disconnect()
-  }, [screen, watchedEnough])
-
-  // offer_viewed fires once, the first time .offer-bridge enters the viewport — independent of
-  // watchedEnough/the sticky bar, since plenty of visitors scroll past without watching 3 min of
-  // video and still see (and should count as having viewed) the offer block.
+  // Bloco 5 (.rr-block5) é o primeiro momento de CTA da página (regra 33: só depois de ver o
+  // resultado, a devolutiva, a lacuna e conhecer o Raiz). offer_viewed dispara junto, uma única
+  // vez, pois é o primeiro bloco de oferta real da página.
   useEffect(() => {
     if (screen !== 'result') return
-    const target = document.querySelector('.offer-bridge')
+    const target = document.querySelector('.rr-block5')
     if (!target || !('IntersectionObserver' in window)) return
     const obs = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !offerViewedFiredRef.current) {
+        if (!entry.isIntersecting) return
+        setStickyRevealed(true)
+        if (!offerViewedFiredRef.current) {
           offerViewedFiredRef.current = true
           track('offer_viewed')
         }
@@ -227,42 +347,26 @@ export default function App() {
     return () => obs.disconnect()
   }, [screen])
 
-  // The result screen reveals itself on a timed stagger (up to ~3.8s for the CTA). That reads well
-  // if you sit and watch, but anyone who scrolls ahead meets a blank page, because the blocks below
-  // the fold are still at opacity 0. So: once she scrolls, drop the remaining delays for anything
-  // at or near the viewport, and let the stagger play out untouched for anyone who waits.
+  // Esconde a barra fixa sempre que qualquer um dos 4 blocos de CTA está na tela, para nunca
+  // haver dois botões iguais ao mesmo tempo.
   useEffect(() => {
-    if (screen !== 'result') return
-
-    let observer
-    const revealOnScroll = () => {
-      window.removeEventListener('scroll', revealOnScroll)
-      const pending = document.querySelectorAll(
-        '.devolutiva-para, .result-video-wrapper, .result-signature, .offer-bridge, .offer-bridge .cta-button'
-      )
-      if (!('IntersectionObserver' in window)) {
-        pending.forEach((el) => el.classList.add('reveal-now'))
-        return
-      }
-      observer = new IntersectionObserver(
-        (entries, obs) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) return
-            entry.target.classList.add('reveal-now')
-            obs.unobserve(entry.target)
-          })
-        },
-        { rootMargin: '0px 0px 25% 0px' }
-      )
-      pending.forEach((el) => observer.observe(el))
-    }
-
-    window.addEventListener('scroll', revealOnScroll, { passive: true, once: false })
-    return () => {
-      window.removeEventListener('scroll', revealOnScroll)
-      if (observer) observer.disconnect()
-    }
-  }, [screen])
+    if (screen !== 'result' || !stickyRevealed) return
+    const anchors = document.querySelectorAll('.rr-cta-anchor')
+    if (!anchors.length || !('IntersectionObserver' in window)) return
+    const visible = new Set()
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) visible.add(entry.target)
+          else visible.delete(entry.target)
+        })
+        setCtaBlockVisible(visible.size > 0)
+      },
+      { threshold: 0.15 }
+    )
+    anchors.forEach((el) => obs.observe(el))
+    return () => obs.disconnect()
+  }, [screen, stickyRevealed])
 
   useEffect(() => {
     if (screen === 'quiz') {
@@ -318,9 +422,9 @@ export default function App() {
     handleScreenChange('result')
   }
 
-  // `source` is which button fired it — 'bridge' (bottom of the offer block) or 'sticky' (the
-  // fixed bar). Both go into the checkout_click event and into the Kiwify URL's utm_content, so
-  // a sale can be attributed back to which CTA sold it.
+  // `source` is which of the 4 CTAs fired it ('cta1'..'cta4') or 'sticky' for the fixed bar.
+  // Goes into the checkout_click event and into the Kiwify URL's utm_content, so a sale can be
+  // attributed back to which CTA sold it.
   const handleCheckoutClick = (source) => {
     track('checkout_click', { button: source })
     window.open(buildCheckoutUrl(CHECKOUT_URL, source), '_blank', 'noopener')
@@ -330,9 +434,6 @@ export default function App() {
 
   const score = answers.reduce((a, b) => a + b, 0)
   const resultLevel = getResultLevel(score)
-  const devolutivaParas = resultLevel.devolutiva.split('\n\n')
-  const videoDelay = 1400 + devolutivaParas.length * 150
-  const afterVideoDelay = videoDelay + (resultLevel.videoId ? 300 : 0)
 
   return (
     <div className="app">
@@ -456,175 +557,620 @@ export default function App() {
           </section>
         )}
 
-        {/* SCREEN 4 — RESULTS */}
+        {/* SCREEN 4 — RESULTADO + DEVOLUTIVA + OFERTA DO RAIZ DA SOBRECARGA */}
         {screen === 'result' && (
           <section className="screen-content result-content">
-            <h1 className="headline">
-              {firstName ? `${firstName}, seu resultado chegou.` : 'Seu resultado chegou.'}
-            </h1>
+            <div className="rr">
+              {/* BLOCO 1 — Resultado da Escala */}
+              <div className="rr-band">
+                <div className="rr-inner">
+                  <h1 className="rr-h1" data-clarity-mask="true">
+                    {firstName ? `${firstName}, agora` : 'Agora'} você sabe o quanto está sobrecarregada.
+                  </h1>
+                  <p className="rr-lead" style={{ textAlign: 'center' }}>
+                    Sua pontuação mostra a intensidade da sua sobrecarga neste momento.
+                  </p>
 
-            {/* 1. ANIMATED SCORE ARC */}
-            <div className="score-arc-section" data-clarity-mask="true">
-            <div className="score-arc-wrapper">
-              <svg className="score-arc-svg" viewBox="0 0 220 110" width={220} height={110}>
-                <defs>
-                  <linearGradient id="arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#7A9BB5" />
-                    <stop offset="100%" stopColor="#3A5570" />
-                  </linearGradient>
-                </defs>
-                {/* Background arc (unfilled) */}
-                <path
-                  className="score-arc-bg"
-                  d="M 10 110 A 100 100 0 0 1 210 110"
-                  fill="none"
-                  strokeWidth={12}
-                  strokeLinecap="round"
-                />
-                {/* Filled arc (animates via stroke-dashoffset) */}
-                <path
-                  className="score-arc-fill"
-                  d="M 10 110 A 100 100 0 0 1 210 110"
-                  fill="none"
-                  stroke="url(#arc-gradient)"
-                  strokeWidth={12}
-                  strokeLinecap="round"
-                  style={{
-                    '--arc-final-offset': 314.16 - 314.16 * (score / 72),
-                  }}
-                />
-              </svg>
-              <div className="score-arc-center">
-                <span className="score-arc-number">{score}</span>
-                <span className="score-arc-scale">de 72 pontos</span>
+                  <div className="score-arc-section" data-clarity-mask="true">
+                    <span className="rr-level-label">Seu nível</span>
+                    <div className="score-arc-wrapper">
+                      <svg className="score-arc-svg" viewBox="0 0 220 110" width={220} height={110}>
+                        <defs>
+                          <linearGradient id="arc-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#7A9BB5" />
+                            <stop offset="100%" stopColor="#3A5570" />
+                          </linearGradient>
+                        </defs>
+                        {/* Background arc (unfilled) */}
+                        <path
+                          className="score-arc-bg"
+                          d="M 10 110 A 100 100 0 0 1 210 110"
+                          fill="none"
+                          strokeWidth={12}
+                          strokeLinecap="round"
+                        />
+                        {/* Filled arc (animates via stroke-dashoffset) */}
+                        <path
+                          className="score-arc-fill"
+                          d="M 10 110 A 100 100 0 0 1 210 110"
+                          fill="none"
+                          stroke="url(#arc-gradient)"
+                          strokeWidth={12}
+                          strokeLinecap="round"
+                          style={{
+                            '--arc-final-offset': 314.16 - 314.16 * (score / 72),
+                          }}
+                        />
+                      </svg>
+                      <div className="score-arc-center">
+                        <span className="score-arc-number">{score}</span>
+                        <span className="score-arc-scale">/ 72</span>
+                      </div>
+                      <span className={`level-badge ${resultLevel.badgeClass}`}>{resultLevel.badge}</span>
+                    </div>
+                    <p className="rr-h3" style={{ textAlign: 'center' }}>
+                      {resultLevel.name}
+                    </p>
+                  </div>
+
+                  {BLOCK1_PARAS.map((p, i) => (
+                    <p key={i} className="rr-p">
+                      {p}
+                    </p>
+                  ))}
+
+                  <p className="rr-highlight">
+                    Você já sabe o quanto está sobrecarregada.
+                    <br />
+                    Agora existe uma outra pergunta.
+                  </p>
+                </div>
               </div>
-              <span className={`level-badge ${resultLevel.badgeClass}`}>{resultLevel.badge}</span>
-            </div>
-            </div>
 
-            {/* 2. DIVIDER */}
-            <div className="result-divider" aria-hidden="true" />
+              {/* BLOCO 2 — Devolutiva da Escala */}
+              <div className="rr-band">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">Sua devolutiva</span>
+                  <h2 className="rr-h2">Entenda o seu resultado.</h2>
+                  <p className="rr-p">Agora que você viu sua pontuação, assista à sua devolutiva.</p>
+                  <p className="rr-p">
+                    Neste vídeo, eu explico o que o seu nível de sobrecarga pode significar e o que pode
+                    acontecer quando esse funcionamento começa a fazer parte da rotina.
+                  </p>
 
-            {/* 3. DEVOLUTIVA TEXT (level-specific intro to the video below) */}
-            <div className="devolutiva" data-clarity-mask="true">
-              {devolutivaParas.map((para, i) => (
-                <p
-                  key={i}
-                  className="devolutiva-para"
-                  style={{ animationDelay: `${1400 + i * 150}ms` }}
-                >
-                  {para}
-                </p>
-              ))}
-            </div>
+                  {resultLevel.videoId && (
+                    <div className="result-video-wrapper" style={{ margin: '8px auto 0' }}>
+                      {/* Embed direto, um toque só (aprendido em 2026-09-15: pôster click-to-play
+                          custa dois toques no iOS). -nocookie corta as chamadas de anúncio. */}
+                      <iframe
+                        className="result-video"
+                        src={`https://www.youtube-nocookie.com/embed/${resultLevel.videoId}?rel=0&playsinline=1`}
+                        title={resultLevel.videoTitle || `Devolutiva em vídeo de Karla Arantes — ${resultLevel.name}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  )}
 
-            {/* 3.5 PERSONAL VIDEO MESSAGE */}
-            {resultLevel.videoId && (
-              <div className="result-video-wrapper" style={{ animationDelay: `${videoDelay}ms` }}>
-                {/* Embed direto, um toque só. Um pôster click-to-play foi tentado e revertido em
-                    2026-09-15: no iOS o autoplay com som é bloqueado, então dava dois toques.
-                    Fica o domínio -nocookie, que corta as chamadas de anúncio sem custo nenhum,
-                    e o enablejsapi, que a barra da oferta usa para contar tempo assistido. */}
-                <iframe
-                  id="result-video-player"
-                  className="result-video"
-                  src={`https://www.youtube-nocookie.com/embed/${resultLevel.videoId}?rel=0&enablejsapi=1&playsinline=1`}
-                  title={resultLevel.videoTitle || `Mensagem em vídeo de Karla Arantes — ${resultLevel.name}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+                  <p className="rr-p" style={{ marginTop: 12 }}>
+                    Seu resultado mostrou o quanto você está sobrecarregada.
+                  </p>
+                  <p className="rr-p">Agora talvez tenha surgido outra pergunta.</p>
+                </div>
               </div>
-            )}
 
-            {/* 5. CLOSING SIGNATURE */}
-            <div
-              className="result-signature"
-              style={{
-                animationDelay: `${afterVideoDelay + 300}ms`,
-              }}
-            >
-              <div className="result-signature-divider" aria-hidden="true" />
-              <div className="result-signature-block">
-                {photoError ? (
-                  <div className="result-signature-photo-fallback" aria-hidden="true">KA</div>
-                ) : (
-                  <img
-                    src="/karla.jpg"
-                    alt="Karla Arantes"
-                    className="result-signature-photo"
-                    width={80}
-                    height={80}
-                    onError={() => setPhotoError(true)}
-                  />
-                )}
-                <div className="result-signature-text">
-                  <span className="result-signature-name">Karla Arantes</span>
-                  <span className="result-signature-cred">Psicóloga Clínica • CRP 04/71970</span>
+              {/* BLOCO 3 — A grande lacuna */}
+              <div className="rr-band rr-band-dark">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">Agora você sabe o quanto.</span>
+                  <h2 className="rr-h2">Mas talvez ainda queira entender por quê.</h2>
+                  {BLOCK3_PARAS.map((p, i) => (
+                    <p key={i} className="rr-p">
+                      {p}
+                    </p>
+                  ))}
+                  <p className="rr-highlight">
+                    O resultado mostrou O QUANTO.
+                    <br />
+                    Agora existe uma próxima pergunta:
+                    <br />
+                    O QUE PODE ESTAR ALIMENTANDO ESSE PADRÃO?
+                  </p>
+                </div>
+              </div>
+
+              {/* BLOCO 4 — A grande tese */}
+              <div className="rr-band rr-band-dark">
+                <div className="rr-inner">
+                  <h2 className="rr-h2">O cansaço que o fim de semana não resolve pode ter uma raiz.</h2>
+                  <p className="rr-lede-italic">E talvez ela não esteja na sua agenda.</p>
+                  {BLOCK4_PARAS.map((p, i) => (
+                    <p key={i} className="rr-p">
+                      {p}
+                    </p>
+                  ))}
+                  <p className="rr-highlight">
+                    Você não precisa mudar tudo hoje.
+                    <br />
+                    Talvez precise começar entendendo o que está acontecendo.
+                  </p>
+                </div>
+              </div>
+
+              {/* BLOCO 5 — Apresentação do Raiz — CTA 1 */}
+              <div className="rr-band rr-block5 rr-cta-anchor">
+                <div className="rr-inner rr-cta-block rr-center">
+                  <span className="rr-eyebrow">O próximo passo da sua devolutiva</span>
+                  <h2 className="rr-h2">
+                    É por isso que eu criei o Raiz da Sobrecarga<sup>®</sup>.
+                  </h2>
+                  {BLOCK5_PARAS.map((p, i) => (
+                    <p key={i} className="rr-p">
+                      {p}
+                    </p>
+                  ))}
+                  <p className="rr-highlight">
+                    Nada de texto genérico.
+                    <br />
+                    A experiência é organizada a partir do padrão que aparece com mais força nas suas
+                    respostas.
+                  </p>
+                  <button className="rr-cta-btn" onClick={() => handleCheckoutClick('cta1')}>
+                    Quero descobrir o que está por trás da minha sobrecarga
+                  </button>
+                </div>
+              </div>
+
+              {/* BLOCO 6 — Segundo vídeo do Raiz (só existe se houver conteúdo real) */}
+              {RAIZ_VIDEO_ID && (
+                <div className="rr-band">
+                  <div className="rr-inner">
+                    <h2 className="rr-h2" style={{ textAlign: 'center' }}>
+                      Antes de continuar, eu quero te mostrar uma coisa.
+                    </h2>
+                    <div className="result-video-wrapper" style={{ margin: '8px auto 0' }}>
+                      <iframe
+                        className="result-video"
+                        src={`https://www.youtube-nocookie.com/embed/${RAIZ_VIDEO_ID}?rel=0&playsinline=1`}
+                        title="Apresentação do Raiz da Sobrecarga"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                    <p className="rr-p">
+                      Talvez você tenha passado muito tempo tentando resolver a sobrecarga pela agenda.
+                    </p>
+                    <p className="rr-p">Mas talvez exista algo acontecendo antes da agenda.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* BLOCO 7 — Por que você funciona assim? */}
+              <div className="rr-band">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">Por que você funciona assim?</span>
+                  <h2 className="rr-h2">Talvez o problema não seja falta de organização.</h2>
+                  <p className="rr-p">Você já tentou se organizar.</p>
+                  <p className="rr-p">
+                    Talvez tenha planejado, listado, priorizado e reorganizado a rotina inúmeras vezes.
+                  </p>
+                  <p className="rr-p">E ainda assim continua se sentindo sobrecarregada.</p>
+                  <p className="rr-p">Porque sobrecarga não é apenas acúmulo de tarefas.</p>
+                  <p className="rr-p">
+                    Às vezes, existe uma regra interna orientando a maneira como você responde ao que
+                    precisa ser feito.
+                  </p>
+                  <div className="rr-phrases">
+                    {BLOCK7_PHRASES.map((t, i) => (
+                      <p key={i} className="rr-phrase">
+                        {t}
+                      </p>
+                    ))}
+                  </div>
+                  <p className="rr-p">Essas regras não aparecem do nada.</p>
+                  <p className="rr-p">
+                    Elas podem ser formas aprendidas de lidar com demandas, expectativas, culpa, medo,
+                    responsabilidade e necessidade de reconhecimento.
+                  </p>
+                  <p className="rr-p">E quando uma demanda aparece, o ciclo pode começar.</p>
+                </div>
+              </div>
+
+              {/* BLOCO 8 — Ciclo da sobrecarga */}
+              <div className="rr-band rr-band-alt">
+                <div className="rr-inner">
+                  <div className="rr-cycle">
+                    <svg
+                      viewBox="0 0 340 300"
+                      role="img"
+                      aria-label="Demanda leva a pensamento, que leva a emoção, que leva a comportamento, que leva a sobrecarga, que volta para uma nova demanda"
+                    >
+                      <defs>
+                        <marker
+                          id="rr-ah"
+                          viewBox="0 0 10 10"
+                          refX="8"
+                          refY="5"
+                          markerWidth="7"
+                          markerHeight="7"
+                          orient="auto-start-reverse"
+                        >
+                          <path className="rr-ahead" d="M0,0 L10,5 L0,10 z" />
+                        </marker>
+                      </defs>
+                      <path className="rr-arrow" d="M 222 34 Q 272 48 284 108" markerEnd="url(#rr-ah)" />
+                      <path className="rr-arrow" d="M 284 156 Q 282 210 262 238" markerEnd="url(#rr-ah)" />
+                      <path className="rr-arrow" d="M 198 262 L 150 262" markerEnd="url(#rr-ah)" />
+                      <path className="rr-arrow" d="M 66 240 Q 52 200 56 158" markerEnd="url(#rr-ah)" />
+                      <path className="rr-arrow" d="M 58 110 Q 66 50 116 36" markerEnd="url(#rr-ah)" />
+                      <rect className="rr-node" x="120" y="16" width="100" height="40" rx="20" />
+                      <text x="170" y="41" textAnchor="middle">
+                        Demanda
+                      </text>
+                      <rect className="rr-node" x="232" y="112" width="104" height="40" rx="20" />
+                      <text x="284" y="137" textAnchor="middle">
+                        Pensamento
+                      </text>
+                      <rect className="rr-node" x="200" y="242" width="100" height="40" rx="20" />
+                      <text x="250" y="267" textAnchor="middle">
+                        Emoção
+                      </text>
+                      <rect className="rr-node" x="18" y="242" width="126" height="40" rx="20" />
+                      <text x="81" y="267" textAnchor="middle">
+                        Comportamento
+                      </text>
+                      <rect className="rr-node rr-node-hot" x="4" y="112" width="104" height="40" rx="20" />
+                      <text x="56" y="137" textAnchor="middle">
+                        Sobrecarga
+                      </text>
+                      <text
+                        x="170"
+                        y="142"
+                        textAnchor="middle"
+                        style={{
+                          fontFamily: 'var(--font-display)',
+                          fontStyle: 'italic',
+                          fontSize: 15,
+                          fontWeight: 500,
+                          fill: 'var(--color-primary-dark)',
+                        }}
+                      >
+                        nova demanda
+                      </text>
+                    </svg>
+                    <p className="rr-cycle-cap">O ciclo da sobrecarga</p>
+                  </div>
+                  <h2 className="rr-h2">O ciclo da sobrecarga.</h2>
+                  <p className="rr-p">O problema nem sempre termina quando a demanda termina.</p>
+                  <p className="rr-p">Porque o padrão que orientou a sua resposta pode continuar funcionando.</p>
+                  {BLOCK8_LINES.map((t, i) => (
+                    <p key={i} className="rr-p">
+                      {t}
+                    </p>
+                  ))}
+                  <p className="rr-p">E então a sobrecarga volta.</p>
+                  <p className="rr-highlight">
+                    É assim que você pode acabar confundindo sobrecarga com responsabilidade.
+                    <br />
+                    Mas um padrão aprendido não precisa continuar invisível.
+                  </p>
+                </div>
+              </div>
+
+              {/* BLOCO 9 — As 5 raízes */}
+              <div className="rr-band">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">As 5 raízes da sobrecarga</span>
+                  <h2 className="rr-h2">Talvez sua sobrecarga tenha uma raiz que você nunca percebeu.</h2>
+                  <p className="rr-lead">Qual destas frases parece mais familiar?</p>
+                  <p className="rr-p">Você não precisa escolher agora.</p>
+                  <p className="rr-p">Mas provavelmente uma delas vai incomodar um pouco mais.</p>
+                  <div className="rr-roots">
+                    {ROOT_ITEMS.map((r, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="rr-root-chip"
+                        aria-pressed={selectedRoots.has(i)}
+                        onClick={() => toggleRoot(i)}
+                      >
+                        <span className="rr-box" aria-hidden="true" />
+                        <span>
+                          <span className="rr-root-quote">{r.quote}</span>
+                          <span className="rr-root-name">{r.name}</span>
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="rr-p">Talvez você tenha se reconhecido em mais de uma.</p>
+                  <p className="rr-p">Isso é possível.</p>
+                  <p className="rr-p">A proposta do Raiz não é colocar você em uma caixa.</p>
+                  <p className="rr-p">
+                    É identificar o padrão que aparece com mais força nas suas respostas e começar a
+                    observar como ele funciona na sua vida.
+                  </p>
+                </div>
+              </div>
+
+              {/* BLOCO 10 — CTA após as 5 raízes — CTA 2 */}
+              <div className="rr-band rr-band-dark rr-cta-anchor">
+                <div className="rr-inner rr-cta-block rr-center">
+                  <h2 className="rr-h2">Você acabou de reconhecer algumas possibilidades.</h2>
+                  <p className="rr-p">
+                    Mas reconhecer uma frase é diferente de compreender o padrão que existe por trás dela.
+                  </p>
+                  <p className="rr-p">
+                    O Raiz da Sobrecarga® foi criado para ajudar você a fazer justamente essa investigação.
+                  </p>
+                  <p className="rr-p">
+                    Você vai identificar qual padrão apareceu com mais força nas suas respostas, compreender
+                    como ele pode participar da sua sobrecarga e começar a observar esse funcionamento na
+                    vida real.
+                  </p>
+                  <button className="rr-cta-btn" onClick={() => handleCheckoutClick('cta2')}>
+                    Quero descobrir minha raiz
+                  </button>
+                  <p className="rr-cta-micro">Acesso digital imediato • R$47 • Garantia de 7 dias</p>
+                </div>
+              </div>
+
+              {/* BLOCO 11 — Prova social (só existe com depoimentos reais e autorizados) */}
+              {TESTIMONIALS.length > 0 && (
+                <div className="rr-band">
+                  <div className="rr-inner">
+                    <span className="rr-eyebrow">Você não está sozinha</span>
+                    <h2 className="rr-h2">
+                      Quando você começa a enxergar o padrão, algumas coisas passam a fazer sentido.
+                    </h2>
+                    <p className="rr-lead">
+                      O que mulheres perceberam depois de olhar para a própria sobrecarga
+                    </p>
+                    <div className="rr-tgrid">
+                      {TESTIMONIALS.map((t, i) => (
+                        <div key={i} className="rr-tcard">
+                          <p>{t.quote}</p>
+                          <span>{t.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* BLOCO 12 — O que é o Raiz + BLOCO 13 — Os 4 movimentos */}
+              <div className="rr-band rr-band-dark">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">O próximo passo</span>
+                  <h2 className="rr-h2">
+                    Agora você pode começar a entender o que pode estar por trás do seu resultado.
+                  </h2>
+                  <p className="rr-p">O Raiz da Sobrecarga® é uma experiência guiada de autorreflexão.</p>
+                  <p className="rr-p">Ela foi criada para ajudar você a:</p>
+                  <ul className="rr-checklist">
+                    {RAIZ_IS_ITEMS.map((t, i) => (
+                      <li key={i}>
+                        <span className="rr-checkmark" aria-hidden="true" />
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="rr-p">Não é uma promessa de mudar sua vida em alguns dias.</p>
+                  <p className="rr-p">
+                    É um primeiro espaço para enxergar algo que talvez tenha acontecido no automático por
+                    muito tempo.
+                  </p>
+                  <div className="rr-steps">
+                    {STEP_ITEMS.map((s) => (
+                      <div key={s.n} className="rr-step">
+                        <span className="rr-step-n">{s.n}</span>
+                        <span className="rr-step-k">{s.k}</span>
+                        <p>{s.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* BLOCO 14 — O que você recebe */}
+              <div className="rr-band">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">Tudo o que você recebe</span>
+                  <h2 className="rr-h2">Tudo parte do seu resultado.</h2>
+                  <ul className="rr-deliver">
+                    {DELIVER_ITEMS.map((d, i) => (
+                      <li key={i}>
+                        <span className="rr-check" aria-hidden="true" />
+                        <span>
+                          <b>{d.k}</b>
+                          <span>{d.text}</span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* BLOCO 15 — Por dentro do guia (só existe com imagens reais) */}
+              {PRODUCT_SHOTS.length > 0 && (
+                <div className="rr-band rr-band-alt">
+                  <div className="rr-inner">
+                    <span className="rr-eyebrow">Por dentro do guia</span>
+                    <h2 className="rr-h2">Veja como ele é por dentro.</h2>
+                    <div className="rr-shots">
+                      {PRODUCT_SHOTS.map((s, i) => (
+                        <div key={i} className="rr-shot">
+                          <span>
+                            {s.label}
+                            <br />
+                            {s.caption}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* BLOCO 16 — É para você se */}
+              <div className="rr-band">
+                <div className="rr-inner">
+                  <h2 className="rr-h2">É para você se...</h2>
+                  <ul className="rr-checklist">
+                    {FIT_ITEMS.map((t, i) => (
+                      <li key={i}>
+                        <span className="rr-checkmark" aria-hidden="true" />
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              {/* BLOCO 17 — O Raiz não é */}
+              <div className="rr-band rr-band-alt">
+                <div className="rr-inner">
+                  <h2 className="rr-h2">O Raiz não é...</h2>
+                  <ul className="rr-xlist">
+                    {NOT_ITEMS.map((t, i) => (
+                      <li key={i}>
+                        <span className="rr-xmark" aria-hidden="true" />
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="rr-p">
+                    O Raiz da Sobrecarga® é uma experiência de psicoeducação e autorreflexão.
+                  </p>
+                  <p className="rr-p">
+                    Se você vive um sofrimento psicológico intenso, esta experiência não substitui
+                    acompanhamento profissional individual.
+                  </p>
+                </div>
+              </div>
+
+              {/* BLOCO 18 — Oferta — CTA 3 */}
+              <div className="rr-band rr-cta-anchor">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">Comece pela raiz</span>
+                  <h2 className="rr-h2">Você não precisa mudar a sua vida inteira hoje.</h2>
+                  <p className="rr-p">Só precisa começar a entender o que está acontecendo.</p>
+                  <p className="rr-p">O Raiz da Sobrecarga® foi criado para ser esse primeiro movimento.</p>
+                  <p className="rr-p">Dentro da experiência, você vai:</p>
+                  <ul className="rr-checklist">
+                    {OFFER_LIST_ITEMS.map((t, i) => (
+                      <li key={i}>
+                        <span className="rr-checkmark" aria-hidden="true" />
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="rr-pricecard">
+                    <h3 className="rr-pricecard-name">
+                      Raiz da Sobrecarga<sup>®</sup>
+                    </h3>
+                    <div className="rr-price">
+                      <span className="rr-price-sub">Pagamento único</span>
+                      <span className="rr-price-main">
+                        <small>R$</small>47
+                      </span>
+                      <span className="rr-price-sub">Pix ou até 3x no cartão</span>
+                    </div>
+                    <button className="rr-cta-btn" onClick={() => handleCheckoutClick('cta3')}>
+                      Quero começar pela raiz
+                    </button>
+                    <p className="rr-cta-micro">Garantia de 7 dias • Pagamento seguro • Acesso imediato</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* BLOCO 19 — Garantia */}
+              <div className="rr-band">
+                <div className="rr-inner">
+                  <h2 className="rr-h2">Você pode experimentar com tranquilidade.</h2>
+                  <p className="rr-p">
+                    Você tem 7 dias para acessar a experiência, conhecer o material e começar o primeiro
+                    exercício.
+                  </p>
+                  <p className="rr-p">
+                    Se perceber que o Raiz da Sobrecarga® não faz sentido para você, poderá solicitar o
+                    reembolso dentro do prazo de garantia.
+                  </p>
+                  <div className="rr-guarantee">
+                    <span className="rr-guarantee-icon" aria-hidden="true" />
+                    <p>
+                      <strong>Garantia de 7 dias.</strong>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* BLOCO 20 — Perguntas frequentes */}
+              <div className="rr-band rr-band-alt">
+                <div className="rr-inner">
+                  <span className="rr-eyebrow">Perguntas frequentes</span>
+                  <h2 className="rr-h2">Ainda com dúvida?</h2>
+                  <div className="rr-faq">
+                    {FAQ_ITEMS.map((f, i) => (
+                      <details key={i}>
+                        <summary>{f.q}</summary>
+                        {f.a.map((p, j) => (
+                          <p key={j}>{p}</p>
+                        ))}
+                      </details>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* BLOCO 21 — Fechamento final — CTA 4 */}
+              <div className="rr-band rr-band-dark rr-cta-anchor">
+                <div className="rr-inner rr-close">
+                  <span className="rr-eyebrow">Agora você já sabe que está sobrecarregada.</span>
+                  <h2 className="rr-h2">A próxima pergunta é o que pode estar por trás disso.</h2>
+                  {CLOSE_PARAS.map((p, i) => (
+                    <p key={i} className="rr-p">
+                      {p}
+                    </p>
+                  ))}
+                  <p className="rr-highlight">Comece pela raiz.</p>
+                  <button className="rr-cta-btn" onClick={() => handleCheckoutClick('cta4')}>
+                    Quero começar pela raiz — R$47
+                  </button>
+                  <p className="rr-cta-micro">Acesso imediato • Garantia de 7 dias</p>
+                  <p className="rr-ps">
+                    P.S. Você já passou tempo demais tentando resolver apenas a superfície.
+                    <br />
+                    Talvez agora seja hora de entender o que está por trás dela.
+                  </p>
+                  <p className="rr-disclaimer">
+                    Raiz da Sobrecarga® é uma experiência de psicoeducação e autorreflexão e não substitui
+                    acompanhamento psicológico individual.
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* 6. PONTE PARA O LOW TICKET (Raiz da Sobrecarga) */}
-            <section
-              className="offer-bridge"
-              style={{ '--cta-delay': `${afterVideoDelay + 900}ms` }}
-              aria-labelledby="offer-bridge-title"
-            >
-              <div className="offer-bridge-divider" aria-hidden="true" />
-              <h2 className="offer-bridge-title" id="offer-bridge-title">
-                Você já descobriu o quanto está sobrecarregada.
-              </h2>
-              <p className="offer-bridge-para">
-                Mas o seu nível de sobrecarga responde apenas uma parte da pergunta.
-              </p>
-              <p className="offer-bridge-para">Talvez tenha ficado outra:</p>
-              <p className="offer-bridge-question">
-                “Por que eu continuo funcionando dessa maneira mesmo quando sei que estou cansada?”
-              </p>
-              <p className="offer-bridge-para">
-                A resposta pode estar na forma como você aprendeu a responder às demandas, às pessoas e
-                às suas próprias necessidades.
-              </p>
-              <p className="offer-bridge-para">
-                É isso que vamos investigar no <strong>Raiz da Sobrecarga®</strong>.
-              </p>
-              <p className="offer-bridge-para offer-bridge-para-last">
-                Uma experiência guiada de autorreflexão para ajudar você a perceber o padrão que
-                aparece com mais força no seu funcionamento.
-              </p>
-              <span className="cta-nudge-arrow">👇</span>
-              <button
-                className="cta-button cta-result"
-                onClick={() => handleCheckoutClick('bridge')}
-                style={{
-                  '--cta-delay': `${afterVideoDelay + 900}ms`,
-                }}
-              >
-                Quero descobrir minha raiz
-              </button>
-            </section>
-
-            {/* Barra fixa da oferta — só depois de 3 min de aula assistida, e some quando o bloco
-                da oferta aparece na tela, para nunca haver dois botões iguais ao mesmo tempo. */}
-            {watchedEnough &&
+            {/* Barra fixa da oferta — aparece depois que o Bloco 5 (1º CTA) já passou pela tela
+                uma vez, e some sempre que um dos 4 blocos de CTA está visível. */}
+            {stickyRevealed &&
               /* Precisa sair via portal para o body: a seção do resultado tem `transform` (da
                  animação de entrada), e um ancestral com transform vira o bloco de referência do
                  `position: fixed` — dentro dela a barra ancorava na seção, fora da tela. */
               createPortal(
                 <div
-                  className={`offer-sticky${offerInView ? ' is-hidden' : ''}`}
+                  className={`offer-sticky${ctaBlockVisible ? ' is-hidden' : ''}`}
                   role="region"
                   aria-label="Raiz da Sobrecarga"
                 >
                   <span className="offer-sticky-label">
-                    Raiz da Sobrecarga<sup>®</sup>
+                    Raiz da Sobrecarga<sup>®</sup> · R$47 · garantia de 7 dias
                   </span>
                   <button
                     type="button"
                     className="offer-sticky-btn"
                     onClick={() => handleCheckoutClick('sticky')}
                   >
-                    Quero descobrir minha raiz
+                    Quero começar pela raiz
                   </button>
                 </div>,
                 document.body

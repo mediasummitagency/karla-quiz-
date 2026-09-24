@@ -16,6 +16,14 @@
   --container-max: 600px;
   --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.06);
   --shadow-lift: 0 8px 30px rgba(0, 0, 0, 0.1);
+
+  /* Additions for the Raiz da Sobrecarga result/offer page (2026-09-24) — additive only,
+     nothing above this line changed. See _workspace/inputs/2026-09-24-karla-comando-pagina-resultado.md */
+  --color-navy: #22384D;
+  --color-accent-deep: #B8966C;
+  --color-bg-alt: #EDE6DD;
+  --color-line: #E1D6CA;
+  --color-ok: #5B8A6E;
 }
 
 /* ============ RESET & BASE ============ */
@@ -1114,5 +1122,656 @@ body {
   .offer-sticky.is-hidden {
     opacity: 0;
     visibility: hidden;
+  }
+}
+
+/* ================================================================
+   RAIZ DA SOBRECARGA — resultado + devolutiva + oferta (2026-09-24)
+   Comando: _workspace/inputs/2026-09-24-karla-comando-pagina-resultado.md
+   Tudo abaixo é escopado em .rr para não vazar para intro/quiz/lead.
+   ================================================================ */
+.rr {
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Full-bleed mesmo dentro do .container (max-width 600px), não importa quantas
+   camadas de ancestrais existam: position:relative + left:50% leva a borda
+   esquerda para o centro da página (os ancestrais estão centralizados com
+   margin:0 auto, sem offsets assimétricos); width:100vw + margin-left:-50vw
+   fazem o resto. .app já tem overflow-x:hidden, então não sobra scroll lateral. */
+.rr-band {
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  padding: 44px 20px;
+}
+
+.rr-band-alt {
+  background: var(--color-bg-alt);
+}
+
+.rr-band-dark {
+  background: var(--color-navy);
+  color: #D5DEE7;
+}
+.rr-band-dark .rr-eyebrow {
+  color: var(--color-accent);
+}
+.rr-band-dark h1,
+.rr-band-dark h2,
+.rr-band-dark h3,
+.rr-band-dark strong {
+  color: #FDFAF7;
+}
+
+.rr-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: grid;
+  gap: 18px;
+}
+
+@media (min-width: 900px) {
+  .rr-band {
+    padding: 76px 32px;
+  }
+  .rr-inner {
+    max-width: 880px;
+    gap: 22px;
+  }
+}
+
+.rr-eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.rr-h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(28px, 7.5vw, 42px);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.rr-h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(24px, 6vw, 32px);
+  line-height: 1.16;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.rr-h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(19px, 4.6vw, 22px);
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.rr-lead {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text-body);
+  margin: 0;
+}
+.rr-band-dark .rr-lead {
+  color: #D5DEE7;
+}
+
+.rr-p {
+  font-size: 15px;
+  line-height: 1.85;
+  color: var(--color-text-body);
+  margin: 0;
+}
+.rr-band-dark .rr-p {
+  color: #D5DEE7;
+}
+
+.rr-highlight {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(19px, 5vw, 25px);
+  line-height: 1.35;
+  color: var(--color-primary-dark);
+  text-align: center;
+  margin: 6px 0 0;
+}
+.rr-band-dark .rr-highlight {
+  color: var(--color-accent);
+}
+
+/* Bloco 1 — SEU NÍVEL / gauge */
+.rr-level-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-bottom: -8px;
+}
+
+/* Bloco 3/4 — grifos de reforço (reaproveita .rr-p com leve ênfase) */
+.rr-lede-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--color-text-body);
+  margin: -6px 0 0;
+}
+.rr-band-dark .rr-lede-italic {
+  color: #D5DEE7;
+}
+
+/* Bloco 7 — frases isoladas */
+.rr-phrases {
+  display: grid;
+  gap: 12px;
+  margin: 4px 0;
+}
+.rr-phrase {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(18px, 4.6vw, 22px);
+  color: var(--color-text-primary);
+  line-height: 1.25;
+  padding-left: 16px;
+  border-left: 3px solid var(--color-accent);
+  margin: 0;
+}
+
+/* Bloco 8 — ciclo da sobrecarga */
+.rr-cycle {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-line);
+  border-radius: 18px;
+  padding: 20px 14px 12px;
+}
+.rr-cycle svg {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  margin: 0 auto;
+}
+.rr-cycle text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--color-text-primary);
+}
+.rr-node {
+  fill: var(--color-bg);
+  stroke: var(--color-primary-light);
+  stroke-width: 1.5;
+}
+.rr-node-hot {
+  fill: rgba(212, 184, 150, 0.35);
+  stroke: var(--color-accent);
+}
+.rr-arrow {
+  stroke: var(--color-primary-light);
+  stroke-width: 1.5;
+  fill: none;
+}
+.rr-ahead {
+  fill: var(--color-primary-light);
+}
+.rr-cycle-cap {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 6px 0 0;
+}
+
+/* Bloco 9 — as 5 raízes (root chips, tocáveis) */
+.rr-roots {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 600px) {
+  .rr-roots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 900px) {
+  .rr-roots {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.rr-root-chip {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  align-items: start;
+  text-align: left;
+  width: 100%;
+  background: var(--color-bg-card);
+  border: 1.5px solid var(--color-line);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--color-text-body);
+  transition: border-color 150ms ease, background 150ms ease;
+}
+.rr-root-chip:hover {
+  border-color: var(--color-primary-light);
+}
+.rr-root-chip .rr-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--color-primary-light);
+  margin-top: 2px;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.rr-root-chip[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: #FBF4EA;
+}
+.rr-root-chip[aria-pressed='true'] .rr-box {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.rr-root-chip[aria-pressed='true'] .rr-box::after {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 2.2px solid #fff;
+  border-bottom: 2.2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
+}
+.rr-root-quote {
+  display: block;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.22;
+  color: var(--color-text-primary);
+}
+.rr-root-name {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-top: 6px;
+}
+
+/* Blocos de CTA (5, 10, 18, 21) */
+.rr-cta-block {
+  display: grid;
+  gap: 14px;
+}
+.rr-cta-block.rr-center {
+  justify-items: center;
+  text-align: center;
+}
+
+.rr-cta-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 440px;
+  margin: 6px auto 0;
+  padding: 17px 20px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-accent-deep);
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(184, 150, 108, 0.35);
+  transition: background 150ms ease, transform 100ms ease;
+}
+.rr-cta-btn:hover {
+  background: #A6845B;
+  transform: translateY(-1px);
+}
+.rr-cta-btn:active {
+  transform: scale(0.98);
+}
+.rr-cta-btn:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 3px;
+}
+
+.rr-cta-micro {
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.rr-band-dark .rr-cta-micro {
+  color: #AFC0CF;
+}
+
+/* Bloco 11 — depoimentos (só existe conteúdo real) */
+.rr-tgrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+.rr-tcard {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-line);
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+.rr-tcard p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.rr-tcard span {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Bloco 13 — os 4 movimentos */
+.rr-steps {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 700px) {
+  .rr-steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.rr-step {
+  background: rgba(253, 250, 247, 0.06);
+  border: 1px solid rgba(212, 184, 150, 0.35);
+  border-radius: 14px;
+  padding: 16px;
+  display: grid;
+  gap: 4px;
+}
+.rr-step-n {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+}
+.rr-step-k {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #FDFAF7;
+}
+.rr-step p {
+  font-size: 14px;
+  line-height: 1.4;
+  color: #D5DEE7;
+  margin: 0;
+}
+
+/* Bloco 14 — o que você recebe */
+.rr-deliver {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rr-deliver li {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-line);
+}
+.rr-deliver li:first-child {
+  border-top: 1px solid var(--color-line);
+}
+.rr-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-top: 2px;
+  flex: none;
+  background: var(--color-ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 100% no-repeat;
+}
+.rr-deliver b {
+  display: block;
+  color: var(--color-text-primary);
+  font-size: 16px;
+}
+.rr-deliver span span {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+/* Bloco 15 — telas do produto (só existe conteúdo real) */
+.rr-shots {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.rr-shot {
+  aspect-ratio: 9 / 18;
+  border-radius: 18px;
+  border: 5px solid var(--color-text-primary);
+  background: var(--color-bg-card);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 8px;
+}
+.rr-shot span {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--color-text-muted);
+}
+
+/* Blocos 12/16/18 (✓) e 17 (✕) */
+.rr-checklist,
+.rr-xlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.rr-checklist li,
+.rr-xlist li {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-text-body);
+}
+.rr-band-dark .rr-checklist li,
+.rr-band-dark .rr-xlist li {
+  color: #D5DEE7;
+}
+.rr-checkmark,
+.rr-xmark {
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  border-radius: 50%;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  flex: none;
+}
+.rr-checkmark {
+  background-color: var(--color-ok);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.rr-xmark {
+  background-color: #C9B2B7;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M6.5 6.5l7 7M13.5 6.5l-7 7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+/* Bloco 18 — price card */
+.rr-pricecard {
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-accent-deep);
+  border-radius: 20px;
+  padding: 26px 20px;
+  display: grid;
+  gap: 14px;
+  box-shadow: 0 16px 40px rgba(44, 62, 80, 0.1);
+}
+.rr-pricecard-name {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.rr-price {
+  text-align: center;
+  display: grid;
+  gap: 2px;
+}
+.rr-price-main {
+  font-family: var(--font-display);
+  font-size: 50px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+.rr-price-main small {
+  font-size: 22px;
+  vertical-align: top;
+  margin-right: 2px;
+}
+.rr-price-sub {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Bloco 19 — garantia */
+.rr-guarantee {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 12px;
+  align-items: center;
+  background: var(--color-bg);
+  border-radius: 12px;
+  padding: 14px;
+}
+.rr-guarantee-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--color-ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 55% no-repeat;
+}
+.rr-guarantee p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-body);
+  margin: 0;
+}
+
+/* Bloco 20 — FAQ */
+.rr-faq {
+  display: grid;
+  gap: 10px;
+}
+.rr-faq details {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+}
+.rr-faq summary {
+  cursor: pointer;
+  padding: 15px 44px 15px 16px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  list-style: none;
+  position: relative;
+  font-size: 15px;
+}
+.rr-faq summary::-webkit-details-marker {
+  display: none;
+}
+.rr-faq summary::after {
+  content: '+';
+  position: absolute;
+  right: 16px;
+  top: 9px;
+  font-size: 22px;
+  color: var(--color-primary);
+}
+.rr-faq details[open] summary::after {
+  content: '\2013';
+}
+.rr-faq details p {
+  padding: 0 16px 15px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-body);
+  margin: 0;
+}
+.rr-faq details p + p {
+  margin-top: 10px;
+}
+
+/* Bloco 21 — fechamento final */
+.rr-close {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+}
+.rr-ps {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--color-accent);
+  margin: 6px 0 0;
+}
+.rr-disclaimer {
+  font-size: 12px;
+  color: #AFC0CF;
+  margin: 4px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rr-root-chip {
+    transition: none;
   }
 }

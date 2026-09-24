@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import { initTracking, track, buildCheckoutUrl } from './tracking'
 
 // ============ CONFIGURATION (update these as needed) ============
 const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyzvpm7uPCkeyLx3nZYOJ_3t5bDU6xw9wD7H6_30r9ZyHniVJHLrA1lZOMYY8G2wNfHEQ/exec'
@@ -119,12 +120,18 @@ export default function App() {
   const [photoError, setPhotoError] = useState(false)
   const [watchedEnough, setWatchedEnough] = useState(false)
   const [offerInView, setOfferInView] = useState(false)
+  const offerViewedFiredRef = useRef(false)
+
+  useEffect(() => {
+    initTracking()
+  }, [])
 
   useEffect(() => {
     if (screen === 'result' || screen === 'intro') setPhotoError(false)
     if (screen !== 'result') {
       setWatchedEnough(false)
       setOfferInView(false)
+      offerViewedFiredRef.current = false
     }
   }, [screen])
 
@@ -186,7 +193,8 @@ export default function App() {
   }, [screen, watchedEnough])
 
   // Hide the sticky bar once the real offer block is on screen, so she never sees two buttons
-  // for the same thing at the same time.
+  // for the same thing at the same time. Gated on watchedEnough because the sticky bar itself
+  // only exists once watchedEnough is true.
   useEffect(() => {
     if (screen !== 'result' || !watchedEnough) return
     const target = document.querySelector('.offer-bridge')
@@ -198,6 +206,26 @@ export default function App() {
     obs.observe(target)
     return () => obs.disconnect()
   }, [screen, watchedEnough])
+
+  // offer_viewed fires once, the first time .offer-bridge enters the viewport — independent of
+  // watchedEnough/the sticky bar, since plenty of visitors scroll past without watching 3 min of
+  // video and still see (and should count as having viewed) the offer block.
+  useEffect(() => {
+    if (screen !== 'result') return
+    const target = document.querySelector('.offer-bridge')
+    if (!target || !('IntersectionObserver' in window)) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !offerViewedFiredRef.current) {
+          offerViewedFiredRef.current = true
+          track('offer_viewed')
+        }
+      },
+      { threshold: 0.12 }
+    )
+    obs.observe(target)
+    return () => obs.disconnect()
+  }, [screen])
 
   // The result screen reveals itself on a timed stagger (up to ~3.8s for the CTA). That reads well
   // if you sit and watch, but anyone who scrolls ahead meets a blank page, because the blocks below
@@ -255,6 +283,7 @@ export default function App() {
     setAnswers(newAnswers)
 
     if (newAnswers.length >= totalQuestions) {
+      track('quiz_complete')
       setTimeout(() => handleScreenChange('lead'), 400)
     } else {
       setTimeout(() => setCurrentQuestion(newAnswers.length), 400)
@@ -265,6 +294,8 @@ export default function App() {
     e.preventDefault()
     const score = answers.reduce((a, b) => a + b, 0)
     const level = getResultLevel(score)
+
+    track('lead_submit')
 
     if (WEBHOOK_URL) {
       fetch(WEBHOOK_URL, {
@@ -287,8 +318,12 @@ export default function App() {
     handleScreenChange('result')
   }
 
-  const handleCheckoutClick = () => {
-    window.open(CHECKOUT_URL, '_blank', 'noopener')
+  // `source` is which button fired it — 'bridge' (bottom of the offer block) or 'sticky' (the
+  // fixed bar). Both go into the checkout_click event and into the Kiwify URL's utm_content, so
+  // a sale can be attributed back to which CTA sold it.
+  const handleCheckoutClick = (source) => {
+    track('checkout_click', { button: source })
+    window.open(buildCheckoutUrl(CHECKOUT_URL, source), '_blank', 'noopener')
   }
 
   const firstName = formData.nome.trim().split(/\s+/)[0] || ''
@@ -333,7 +368,13 @@ export default function App() {
               Este teste foi criado para mulheres que funcionam todos os dias, mas não sabem mais a que custo.
             </p>
             <p className="body-text">Responda com sinceridade. Leva menos de 3 minutos.</p>
-            <button className="cta-button" onClick={() => handleScreenChange('quiz')}>
+            <button
+              className="cta-button"
+              onClick={() => {
+                track('quiz_start')
+                handleScreenChange('quiz')
+              }}
+            >
               Quero fazer o teste
             </button>
           </section>
@@ -379,7 +420,7 @@ export default function App() {
             <p className="subheadline">
               Coloque seu nome e WhatsApp para acessar sua análise personalizada.
             </p>
-            <form onSubmit={handleLeadSubmit} className="lead-form">
+            <form onSubmit={handleLeadSubmit} className="lead-form" data-clarity-mask="true">
               <input
                 type="text"
                 placeholder="Nome"
@@ -423,7 +464,7 @@ export default function App() {
             </h1>
 
             {/* 1. ANIMATED SCORE ARC */}
-            <div className="score-arc-section">
+            <div className="score-arc-section" data-clarity-mask="true">
             <div className="score-arc-wrapper">
               <svg className="score-arc-svg" viewBox="0 0 220 110" width={220} height={110}>
                 <defs>
@@ -465,7 +506,7 @@ export default function App() {
             <div className="result-divider" aria-hidden="true" />
 
             {/* 3. DEVOLUTIVA TEXT (level-specific intro to the video below) */}
-            <div className="devolutiva">
+            <div className="devolutiva" data-clarity-mask="true">
               {devolutivaParas.map((para, i) => (
                 <p
                   key={i}
@@ -554,7 +595,7 @@ export default function App() {
               <span className="cta-nudge-arrow">👇</span>
               <button
                 className="cta-button cta-result"
-                onClick={handleCheckoutClick}
+                onClick={() => handleCheckoutClick('bridge')}
                 style={{
                   '--cta-delay': `${afterVideoDelay + 900}ms`,
                 }}
@@ -578,7 +619,11 @@ export default function App() {
                   <span className="offer-sticky-label">
                     Raiz da Sobrecarga<sup>®</sup>
                   </span>
-                  <button type="button" className="offer-sticky-btn" onClick={handleCheckoutClick}>
+                  <button
+                    type="button"
+                    className="offer-sticky-btn"
+                    onClick={() => handleCheckoutClick('sticky')}
+                  >
                     Quero descobrir minha raiz
                   </button>
                 </div>,

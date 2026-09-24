@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom'
 import { initTracking, track, buildCheckoutUrl } from './tracking'
 
 // ============ CONFIGURATION (update these as needed) ============
-const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyzvpm7uPCkeyLx3nZYOJ_3t5bDU6xw9wD7H6_30r9ZyHniVJHLrA1lZOMYY8G2wNfHEQ/exec'
+// PREVIEW: envio de leads DESLIGADO neste branch. A planilha (scripts/Code.gs) e o Zap do WhatsApp
+// ainda não têm colunas para nome/contexto/duração/raiz/resposta aberta. Religar só junto com isso.
+const WEBHOOK_URL = ''
 // Checkout do low ticket "Raiz da Sobrecarga" (Kiwify)
 const CHECKOUT_URL = 'https://pay.kiwify.com.br/zftB1uv'
 // A barra fixa da oferta só aparece depois deste tanto de vídeo ASSISTIDO (não de tempo na
@@ -82,6 +84,93 @@ const RESULT_LEVELS = [
   },
 ]
 
+// ============ CONTEXTO (não pontua; só personaliza o resultado) ============
+const CONTEXT_OPTIONS = [
+  { key: 'trabalho', label: 'Trabalho fora', phrase: 'o trabalho' },
+  { key: 'empreendo', label: 'Empreendo / trabalho em casa', phrase: 'o seu negócio' },
+  { key: 'filhos', label: 'Filhos', phrase: 'os filhos' },
+  { key: 'familia', label: 'Cuidar de pais ou familiares', phrase: 'o cuidado com a família' },
+  { key: 'casa', label: 'Casa', phrase: 'a casa' },
+  { key: 'estudos', label: 'Estudos', phrase: 'os estudos' },
+]
+
+const DURATION_OPTIONS = [
+  { key: 'semanas', label: 'Algumas semanas', phrase: 'há algumas semanas' },
+  { key: 'meses', label: 'Alguns meses', phrase: 'há alguns meses' },
+  { key: 'ano', label: 'Mais de um ano', phrase: 'há mais de um ano' },
+  { key: 'sempre', label: 'Nem lembro como era antes', phrase: 'há tanto tempo que nem lembra como era antes' },
+]
+
+// As 18 perguntas continuam as mesmas e na mesma ordem; só ganham pausas a cada 6.
+const CHAPTER_SIZE = 6
+const CHAPTER_TITLES = ['Seu dia a dia', 'Suas cobranças', 'Você por dentro']
+
+function joinPt(list) {
+  if (list.length <= 1) return list.join('')
+  return `${list.slice(0, -1).join(', ')} e ${list[list.length - 1]}`
+}
+
+// ============ AS 5 RAÍZES (rascunho 2026-09-24, textos pendentes de aprovação da Karla) ============
+// `items` = índices (0-based) das perguntas que mais se aproximam de cada raiz.
+const ROOTS = [
+  {
+    key: 'da-conta',
+    name: 'A que dá conta',
+    quote: 'Se eu não resolver, ninguém resolve.',
+    items: [3, 6, 8],
+    text: 'É a mulher que sente que, se ela não resolver, ninguém resolve. Por isso ela segura tudo, mesmo quando já não tem de onde tirar. Isso não é força demais. Muitas vezes é uma regra que você aprendeu cedo e que continua mandando, mesmo quando custa caro.',
+  },
+  {
+    key: 'provar',
+    name: 'A que precisa provar',
+    quote: 'Se eu conseguir, ninguém vai duvidar de mim.',
+    items: [9, 14],
+    text: 'É a mulher que sente que precisa mostrar, o tempo todo, que é capaz. Cada tarefa vira uma prova, e nenhum resultado parece suficiente por muito tempo. O cansaço aqui não vem só do que você faz. Vem do quanto você sente que precisa se provar enquanto faz.',
+  },
+  {
+    key: 'impecavel',
+    name: 'A que exige o impecável',
+    quote: 'Se não ficou como deveria, não conta.',
+    items: [4, 14],
+    text: 'É a mulher para quem o "bom o suficiente" não conta. Se não ficou como deveria, é como se não tivesse feito. Isso transforma qualquer tarefa em algo que nunca termina de verdade, e o descanso nunca chega, porque sempre falta um detalhe.',
+  },
+  {
+    key: 'parar',
+    name: 'A que não se permite parar',
+    quote: 'Eu poderia estar fazendo mais.',
+    items: [1, 2, 12],
+    text: 'É a mulher que, mesmo parada, sente que poderia estar fazendo mais. Descansar vem com culpa, e a cabeça continua trabalhando quando o corpo finalmente deita. Não é falta de saber descansar. É uma regra interna que diz que parar é ficar devendo.',
+  },
+  {
+    key: 'ultimo',
+    name: 'A que fica por último',
+    quote: 'Isso é importante pra mim. Mas pode esperar.',
+    items: [2, 7, 11],
+    text: 'É a mulher que cuida de todo mundo e deixa as próprias necessidades para depois. Ela sabe o que é importante para ela, mas sempre existe algo mais urgente na frente. Com o tempo, esse "depois" vai ficando tão longe que ela mesma começa a se perder de vista.',
+  },
+]
+
+// Quanto cada raiz aparece nas respostas (0-100). A raiz escolhida por ela recebe um peso extra,
+// porque a escolha direta é o sinal mais forte que temos.
+function getRootProfile(answers, pickedKey) {
+  return ROOTS.map((r) => {
+    const avg = r.items.reduce((s, i) => s + (answers[i] ?? 0), 0) / r.items.length
+    let pct = Math.round((avg / 4) * 100)
+    if (r.key === pickedKey) pct = Math.min(100, pct + 15)
+    return { ...r, pct }
+  }).sort((a, b) => b.pct - a.pct)
+}
+
+// As 3 afirmações que ela marcou com mais intensidade (empate: a que veio primeiro).
+function getTopSignals(answers) {
+  return answers
+    .map((v, i) => ({ v, i }))
+    .filter((a) => a.v >= 2)
+    .sort((a, b) => b.v - a.v || a.i - b.i)
+    .slice(0, 3)
+    .map((a) => ({ text: QUESTIONS[a.i], label: SCALE_LABELS[a.v] }))
+}
+
 function getResultLevel(score) {
   return RESULT_LEVELS.find((l) => score >= l.min && score <= l.max) || RESULT_LEVELS[0]
 }
@@ -120,6 +209,10 @@ export default function App() {
   const [photoError, setPhotoError] = useState(false)
   const [watchedEnough, setWatchedEnough] = useState(false)
   const [offerInView, setOfferInView] = useState(false)
+  const [rootPick, setRootPick] = useState(null)
+  const [contextPicks, setContextPicks] = useState([])
+  const [duration, setDuration] = useState(null)
+  const [openAnswer, setOpenAnswer] = useState('')
   const offerViewedFiredRef = useRef(false)
 
   useEffect(() => {
@@ -238,7 +331,7 @@ export default function App() {
     const revealOnScroll = () => {
       window.removeEventListener('scroll', revealOnScroll)
       const pending = document.querySelectorAll(
-        '.devolutiva-para, .result-video-wrapper, .result-signature, .offer-bridge, .offer-bridge .cta-button'
+        '.root-map, .devolutiva-para, .result-video-wrapper, .result-signature, .offer-bridge, .offer-bridge .cta-button'
       )
       if (!('IntersectionObserver' in window)) {
         pending.forEach((el) => el.classList.add('reveal-now'))
@@ -265,7 +358,7 @@ export default function App() {
   }, [screen])
 
   useEffect(() => {
-    if (screen === 'quiz') {
+    if (['name', 'context', 'duration', 'quiz', 'break', 'root', 'open'].includes(screen)) {
       document.body.classList.add('quiz-active')
     } else {
       document.body.classList.remove('quiz-active')
@@ -274,7 +367,10 @@ export default function App() {
   }, [screen])
 
   const totalQuestions = QUESTIONS.length
-  const progress = totalQuestions > 0 ? (answers.length / totalQuestions) * 100 : 0
+  const STEP_SCREENS = ['name', 'context', 'duration', 'quiz', 'break', 'root', 'open']
+  const stepsDone =
+    { name: 0, context: 1, duration: 2, root: 21, open: 22 }[screen] ?? 3 + answers.length
+  const progress = (stepsDone / 23) * 100
 
   const handleScreenChange = (newScreen) => setScreen(newScreen)
 
@@ -284,7 +380,13 @@ export default function App() {
 
     if (newAnswers.length >= totalQuestions) {
       track('quiz_complete')
-      setTimeout(() => handleScreenChange('lead'), 400)
+      setTimeout(() => handleScreenChange('root'), 400)
+    } else if (newAnswers.length % CHAPTER_SIZE === 0) {
+      // Fim de uma parte: pausa com um retorno sobre o que ela acabou de responder.
+      setTimeout(() => {
+        setCurrentQuestion(newAnswers.length)
+        handleScreenChange('break')
+      }, 400)
     } else {
       setTimeout(() => setCurrentQuestion(newAnswers.length), 400)
     }
@@ -331,14 +433,23 @@ export default function App() {
   const score = answers.reduce((a, b) => a + b, 0)
   const resultLevel = getResultLevel(score)
   const devolutivaParas = resultLevel.devolutiva.split('\n\n')
-  const videoDelay = 1400 + devolutivaParas.length * 150
+  const rootProfile = getRootProfile(answers, rootPick)
+  const mainRoot = ROOTS.find((r) => r.key === rootPick) || rootProfile[0]
+  const topSignals = getTopSignals(answers)
+  const contextPhrase = joinPt(
+    CONTEXT_OPTIONS.filter((o) => contextPicks.includes(o.key)).map((o) => o.phrase)
+  )
+  const durationPhrase = DURATION_OPTIONS.find((o) => o.key === duration)?.phrase
+  const showSupportNote = (answers[17] ?? 0) >= 3
+  const DEVOLUTIVA_START = 2600
+  const videoDelay = DEVOLUTIVA_START + devolutivaParas.length * 150
   const afterVideoDelay = videoDelay + (resultLevel.videoId ? 300 : 0)
 
   return (
     <div className="app">
       <div className="bg-mesh" aria-hidden="true" />
 
-      {screen === 'quiz' && (
+      {STEP_SCREENS.includes(screen) && (
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${progress}%` }} />
         </div>
@@ -372,7 +483,7 @@ export default function App() {
               className="cta-button"
               onClick={() => {
                 track('quiz_start')
-                handleScreenChange('quiz')
+                handleScreenChange('name')
               }}
             >
               Quero fazer o teste
@@ -413,12 +524,214 @@ export default function App() {
           </section>
         )}
 
+        {/* ETAPA 0 — NOME (personaliza todo o resto) */}
+        {screen === 'name' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">ANTES DE COMEÇAR</p>
+              <h2 className="question-text">Como você gosta de ser chamada?</h2>
+            </div>
+            <form
+              className="step-form"
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (formData.nome.trim()) handleScreenChange('context')
+              }}
+            >
+              <input
+                type="text"
+                placeholder="Seu primeiro nome"
+                value={formData.nome}
+                onChange={(e) => setFormData((f) => ({ ...f, nome: e.target.value }))}
+                className="input-field"
+                autoFocus
+                required
+                data-clarity-mask="true"
+              />
+              <button type="submit" className="cta-button" disabled={!formData.nome.trim()}>
+                Continuar
+              </button>
+            </form>
+          </section>
+        )}
+
+        {/* ETAPA 1 — O QUE OCUPA OS DIAS DELA (várias escolhas) */}
+        {screen === 'context' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">
+                {firstName ? `PRAZER, ${firstName.toUpperCase()}` : 'PRAZER'}
+              </p>
+              <h2 className="question-text">O que mais ocupa os seus dias hoje?</h2>
+              <p className="step-hint">Pode marcar mais de uma opção.</p>
+            </div>
+            <div className="chip-grid">
+              {CONTEXT_OPTIONS.map((o) => {
+                const on = contextPicks.includes(o.key)
+                return (
+                  <button
+                    key={o.key}
+                    type="button"
+                    className={`chip ${on ? 'selected' : ''}`}
+                    aria-pressed={on}
+                    onClick={() =>
+                      setContextPicks((c) => (on ? c.filter((k) => k !== o.key) : [...c, o.key]))
+                    }
+                  >
+                    <span className="chip-check" aria-hidden="true">{on ? '✓' : '+'}</span>
+                    {o.label}
+                  </button>
+                )
+              })}
+            </div>
+            <button
+              type="button"
+              className="cta-button step-next"
+              disabled={contextPicks.length === 0}
+              onClick={() => handleScreenChange('duration')}
+            >
+              Continuar
+            </button>
+          </section>
+        )}
+
+        {/* ETAPA 2 — HÁ QUANTO TEMPO */}
+        {screen === 'duration' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">MAIS UMA COISA</p>
+              <h2 className="question-text">
+                Há quanto tempo você sente que está carregando mais do que consegue?
+              </h2>
+            </div>
+            <div className="scale-cards">
+              {DURATION_OPTIONS.map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  className={`scale-card root-card-option ${duration === o.key ? 'selected' : ''}`}
+                  disabled={!!duration}
+                  onClick={() => {
+                    setDuration(o.key)
+                    setTimeout(() => handleScreenChange('break'), 400)
+                  }}
+                >
+                  <span className="scale-card-label">{o.label}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* PAUSA ENTRE AS PARTES — abre cada bloco de 6 e devolve o que ela acabou de marcar */}
+        {screen === 'break' && (() => {
+          const part = Math.floor(answers.length / CHAPTER_SIZE) // 0, 1 ou 2
+          const last = answers.slice(-CHAPTER_SIZE)
+          const heavy = answers.length ? last.filter((v) => v >= 3).length : 0
+          return (
+            <section className="screen-content chapter-break" key={`break-${part}`}>
+              <p className="chapter-count">PARTE {part + 1} DE 3</p>
+              <h1 className="headline chapter-title">{CHAPTER_TITLES[part]}</h1>
+              {part === 0 ? (
+                <p className="subheadline">
+                  {firstName}, agora são 18 frases curtas, em três partes. Responda pensando nas
+                  últimas semanas, sem pensar demais. Não existe resposta certa.
+                </p>
+              ) : (
+                <>
+                  <div className="chapter-dots" aria-hidden="true">
+                    {last.map((v, i) => (
+                      <span key={i} className={`chapter-dot ${v >= 3 ? 'is-heavy' : ''}`} style={{ animationDelay: `${200 + i * 110}ms` }} />
+                    ))}
+                  </div>
+                  <p className="subheadline">
+                    {heavy >= 4
+                      ? `Na parte anterior, ${heavy} de 6 frases aparecem com frequência na sua vida. Isso é muita coisa para carregar, ${firstName}. Vamos continuar com calma.`
+                      : heavy >= 2
+                        ? `Na parte anterior, ${heavy} de 6 frases aparecem com frequência na sua vida. Já dá para ver onde o peso está se acumulando.`
+                        : `Na parte anterior, poucas frases aparecem com frequência na sua vida. Vamos ver se isso se repete na próxima parte.`}
+                  </p>
+                </>
+              )}
+              <button
+                type="button"
+                className="cta-button"
+                onClick={() => handleScreenChange('quiz')}
+              >
+                {part === 0 ? 'Começar' : 'Continuar'}
+              </button>
+            </section>
+          )
+        })()}
+
+        {/* SCREEN 2.5 — QUAL FRASE MAIS PARECE COM VOCÊ (raiz) */}
+        {screen === 'root' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">ÚLTIMA PERGUNTA</p>
+              <h2 className="question-text">Qual dessas frases mais parece com você hoje?</h2>
+            </div>
+            <div className="scale-cards">
+              {ROOTS.map((r) => (
+                <button
+                  key={r.key}
+                  type="button"
+                  className={`scale-card root-card-option ${rootPick === r.key ? 'selected' : ''}`}
+                  disabled={!!rootPick}
+                  onClick={() => {
+                    setRootPick(r.key)
+                    setTimeout(() => handleScreenChange('open'), 400)
+                  }}
+                >
+                  <span className="scale-card-label">“{r.quote}”</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+
+        {/* ETAPA FINAL — A PERGUNTA ABERTA (opcional, aparece de volta no resultado) */}
+        {screen === 'open' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">SE QUISER</p>
+              <h2 className="question-text">
+                Se você pudesse tirar uma coisa dos seus ombros agora, o que seria?
+              </h2>
+              <p className="step-hint">Opcional. Só você e a Karla vão ver.</p>
+            </div>
+            <form
+              className="step-form"
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleScreenChange('lead')
+              }}
+            >
+              <textarea
+                className="input-field step-textarea"
+                rows={3}
+                maxLength={280}
+                placeholder="Escreva com as suas palavras..."
+                value={openAnswer}
+                onChange={(e) => setOpenAnswer(e.target.value)}
+                data-clarity-mask="true"
+              />
+              <button type="submit" className="cta-button">
+                {openAnswer.trim() ? 'Ver meu resultado' : 'Pular e ver meu resultado'}
+              </button>
+            </form>
+          </section>
+        )}
+
         {/* SCREEN 3 — LEAD CAPTURE */}
         {screen === 'lead' && (
           <section className="screen-content">
-            <h1 className="headline">Seu resultado está pronto.</h1>
+            <h1 className="headline">
+              {firstName ? `${firstName}, seu resultado está pronto.` : 'Seu resultado está pronto.'}
+            </h1>
             <p className="subheadline">
-              Coloque seu nome e WhatsApp para acessar sua análise personalizada.
+              Deixe seu e-mail e WhatsApp para receber sua análise completa.
             </p>
             <form onSubmit={handleLeadSubmit} className="lead-form" data-clarity-mask="true">
               <input
@@ -502,6 +815,78 @@ export default function App() {
             </div>
             </div>
 
+            {/* 1.5 MAPA DAS RAÍZES — o bloco dinâmico, montado a partir das respostas dela */}
+            <div className="root-map" data-clarity-mask="true">
+              <p className="root-map-eyebrow">SEU MAPA DE SOBRECARGA</p>
+
+              {contextPhrase && (
+                <p className="root-context" style={{ animationDelay: '850ms' }}>
+                  Você concilia <strong>{contextPhrase}</strong>
+                  {durationPhrase ? <>, e se sente assim <strong>{durationPhrase}</strong></> : null}.
+                  {' '}Foi a partir disso e das suas respostas que montamos este mapa.
+                </p>
+              )}
+
+              <div className="root-main" style={{ animationDelay: '900ms' }}>
+                <span className="root-main-label">Sua raiz mais forte</span>
+                <h2 className="root-main-name">{mainRoot.name}</h2>
+                <p className="root-main-quote">“{mainRoot.quote}”</p>
+                <p className="root-main-text">
+                  {firstName ? `${firstName}, n` : 'N'}as suas respostas aparece com força um padrão
+                  que eu chamo de “{mainRoot.name.toLowerCase()}”. {mainRoot.text}
+                </p>
+                {openAnswer.trim() && (
+                  <blockquote className="root-open-answer">
+                    <span>Você escreveu que tiraria dos seus ombros:</span>
+                    “{openAnswer.trim()}”
+                  </blockquote>
+                )}
+              </div>
+
+              <div className="root-bars">
+                <p className="root-bars-title">Como cada raiz aparece nas suas respostas</p>
+                {rootProfile.map((r, i) => (
+                  <div
+                    key={r.key}
+                    className={`root-bar-row ${r.key === mainRoot.key ? 'is-main' : ''}`}
+                    style={{ animationDelay: `${1200 + i * 120}ms` }}
+                  >
+                    <div className="root-bar-head">
+                      <span>{r.name}</span>
+                      <span className="root-bar-pct">{r.pct}%</span>
+                    </div>
+                    <div className="root-bar-track">
+                      <div
+                        className="root-bar-fill"
+                        style={{ '--w': `${r.pct}%`, animationDelay: `${1300 + i * 120}ms` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {topSignals.length > 0 && (
+                <div className="root-signals" style={{ animationDelay: '2000ms' }}>
+                  <p className="root-bars-title">O que mais pesou nas suas respostas</p>
+                  <ul>
+                    {topSignals.map((s, i) => (
+                      <li key={i}>
+                        <span className="root-signal-tag">{s.label}</span>
+                        {s.text}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {showSupportNote && (
+                <p className="root-support-note">
+                  Se em algum momento esse peso ficar grande demais, você não precisa carregá-lo
+                  sozinha. O CVV atende de graça, 24 horas, pelo telefone 188 ou pelo site cvv.org.br.
+                </p>
+              )}
+            </div>
+
             {/* 2. DIVIDER */}
             <div className="result-divider" aria-hidden="true" />
 
@@ -511,7 +896,7 @@ export default function App() {
                 <p
                   key={i}
                   className="devolutiva-para"
-                  style={{ animationDelay: `${1400 + i * 150}ms` }}
+                  style={{ animationDelay: `${DEVOLUTIVA_START + i * 150}ms` }}
                 >
                   {para}
                 </p>
@@ -586,7 +971,8 @@ export default function App() {
                 às suas próprias necessidades.
               </p>
               <p className="offer-bridge-para">
-                É isso que vamos investigar no <strong>Raiz da Sobrecarga®</strong>.
+                O seu padrão, <strong>{mainRoot.name.toLowerCase()}</strong>, tem uma origem e um
+                ciclo que o mantém. É isso que vamos investigar no <strong>Raiz da Sobrecarga®</strong>.
               </p>
               <p className="offer-bridge-para offer-bridge-para-last">
                 Uma experiência guiada de autorreflexão para ajudar você a perceber o padrão que

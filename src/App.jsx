@@ -567,10 +567,11 @@ export default function App() {
                   <h1 className="rr-h1" data-clarity-mask="true">
                     {firstName ? `${firstName}, agora` : 'Agora'} você sabe o quanto está sobrecarregada.
                   </h1>
-                  <p className="rr-lead" style={{ textAlign: 'center' }}>
+                  <p className="rr-lead">
                     Sua pontuação mostra a intensidade da sua sobrecarga neste momento.
                   </p>
 
+                  <div className="rr-result-card">
                   <div className="score-arc-section" data-clarity-mask="true">
                     <span className="rr-level-label">Seu nível</span>
                     <div className="score-arc-wrapper">
@@ -612,17 +613,24 @@ export default function App() {
                       {resultLevel.name}
                     </p>
                   </div>
+                  </div>
 
-                  {BLOCK1_PARAS.map((p, i) => (
-                    <p key={i} className="rr-p">
-                      {p}
+                  <div className="rr-stack rr-measure">
+                    <p className="rr-p">{BLOCK1_PARAS[0]}</p>
+                    <p className="rr-p">
+                      <strong>{BLOCK1_PARAS[1]}</strong>
                     </p>
-                  ))}
+                    <ul className="rr-dash">
+                      {BLOCK1_PARAS.slice(2).map((p, i) => (
+                        <li key={i}>{p}</li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  <p className="rr-highlight">
+                  <p className="rr-big">
                     Você já sabe o quanto está sobrecarregada.
                     <br />
-                    Agora existe uma outra pergunta.
+                    Agora existe uma <mark>outra pergunta.</mark>
                   </p>
                 </div>
               </div>
@@ -632,13 +640,14 @@ export default function App() {
                 <div className="rr-inner">
                   <span className="rr-eyebrow">Sua devolutiva</span>
                   <h2 className="rr-h2">Entenda o seu resultado.</h2>
-                  <p className="rr-p">Agora que você viu sua pontuação, assista à sua devolutiva.</p>
-                  <p className="rr-p">
+                  <p className="rr-lead">Agora que você viu sua pontuação, assista à sua devolutiva.</p>
+                  <p className="rr-p rr-measure">
                     Neste vídeo, eu explico o que o seu nível de sobrecarga pode significar e o que pode
                     acontecer quando esse funcionamento começa a fazer parte da rotina.
                   </p>
 
                   {resultLevel.videoId && (
+                    <div className="rr-video-col">
                     <div className="result-video-wrapper" style={{ margin: '8px auto 0' }}>
                       {/* Embed direto, um toque só (aprendido em 2026-09-15: pôster click-to-play
                           custa dois toques no iOS). -nocookie corta as chamadas de anúncio. */}
@@ -650,12 +659,21 @@ export default function App() {
                         allowFullScreen
                       />
                     </div>
+                    <div className="rr-sig">
+                      <img src="/karla.jpg" alt="Karla Arantes" width={48} height={48} />
+                      <div>
+                        <b>Karla Arantes</b>
+                        <span>Psicóloga Clínica · CRP 04/71970</span>
+                      </div>
+                    </div>
+                    </div>
                   )}
 
-                  <p className="rr-p" style={{ marginTop: 12 }}>
+                  <p className="rr-quote-xl" style={{ marginTop: 8 }}>
                     Seu resultado mostrou o quanto você está sobrecarregada.
+                    <br />
+                    Agora talvez tenha surgido outra pergunta.
                   </p>
-                  <p className="rr-p">Agora talvez tenha surgido outra pergunta.</p>
                 </div>
               </div>
 
@@ -664,32 +682,47 @@ export default function App() {
                 <div className="rr-inner">
                   <span className="rr-eyebrow">Agora você sabe o quanto.</span>
                   <h2 className="rr-h2">Mas talvez ainda queira entender por quê.</h2>
-                  {BLOCK3_PARAS.map((p, i) => (
-                    <p key={i} className="rr-p">
-                      {p}
+                  <p className="rr-quote-xl">{BLOCK3_PARAS[0]}</p>
+                  <div className="rr-stack rr-measure">
+                    <p className="rr-p">{BLOCK3_PARAS[1]}</p>
+                    <ul className="rr-pills">
+                      {BLOCK3_PARAS.slice(2, 6).map((p, i) => (
+                        <li key={i}>{p}</li>
+                      ))}
+                    </ul>
+                    <p className="rr-p">
+                      {BLOCK3_PARAS[6]} {BLOCK3_PARAS[7]}
                     </p>
-                  ))}
-                  <p className="rr-highlight">
-                    O resultado mostrou O QUANTO.
-                    <br />
-                    Agora existe uma próxima pergunta:
-                    <br />
-                    O QUE PODE ESTAR ALIMENTANDO ESSE PADRÃO?
-                  </p>
+                    <p className="rr-p">
+                      <strong>{BLOCK3_PARAS[8]}</strong> <strong>{BLOCK3_PARAS[9]}</strong>
+                    </p>
+                    <p className="rr-p">{BLOCK3_PARAS[10]}</p>
+                  </div>
+                  <div className="rr-card rr-card-dark">
+                    <span className="rr-card-k">O resultado mostrou o quanto.</span>
+                    <p className="rr-p">Agora existe uma próxima pergunta:</p>
+                    <p className="rr-big">
+                      <mark>O que pode estar alimentando esse padrão?</mark>
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* BLOCO 4 — A grande tese */}
               <div className="rr-band rr-band-dark">
                 <div className="rr-inner">
-                  <h2 className="rr-h2">O cansaço que o fim de semana não resolve pode ter uma raiz.</h2>
+                  <h2 className="rr-h2 rr-h2-hero">
+                    O cansaço que o fim de semana não resolve <mark>pode ter uma raiz.</mark>
+                  </h2>
                   <p className="rr-lede-italic">E talvez ela não esteja na sua agenda.</p>
-                  {BLOCK4_PARAS.map((p, i) => (
-                    <p key={i} className="rr-p">
-                      {p}
-                    </p>
-                  ))}
-                  <p className="rr-highlight">
+                  <div className="rr-stack rr-measure">
+                    {BLOCK4_PARAS.map((p, i) => (
+                      <p key={i} className="rr-p">
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+                  <p className="rr-quote-xl">
                     Você não precisa mudar tudo hoje.
                     <br />
                     Talvez precise começar entendendo o que está acontecendo.
@@ -699,22 +732,30 @@ export default function App() {
 
               {/* BLOCO 5 — Apresentação do Raiz — CTA 1 */}
               <div className="rr-band rr-block5 rr-cta-anchor">
-                <div className="rr-inner rr-cta-block rr-center">
+                <div className="rr-inner rr-cta-block rr-left">
                   <span className="rr-eyebrow">O próximo passo da sua devolutiva</span>
                   <h2 className="rr-h2">
                     É por isso que eu criei o Raiz da Sobrecarga<sup>®</sup>.
                   </h2>
-                  {BLOCK5_PARAS.map((p, i) => (
-                    <p key={i} className="rr-p">
-                      {p}
+                  <div className="rr-stack rr-measure">
+                    <p className="rr-lead">{BLOCK5_PARAS[0]}</p>
+                    <p className="rr-p">{BLOCK5_PARAS[1]}</p>
+                    <p className="rr-p">
+                      <strong>{BLOCK5_PARAS[2]}</strong> {BLOCK5_PARAS[3]}
                     </p>
-                  ))}
-                  <p className="rr-highlight">
-                    Nada de texto genérico.
-                    <br />
-                    A experiência é organizada a partir do padrão que aparece com mais força nas suas
-                    respostas.
-                  </p>
+                  </div>
+                  <ol className="rr-numlist">
+                    {BLOCK5_PARAS.slice(4).map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ol>
+                  <div className="rr-card">
+                    <span className="rr-card-k">Nada de texto genérico.</span>
+                    <p className="rr-p">
+                      A experiência é organizada a partir do{' '}
+                      <mark>padrão que aparece com mais força nas suas respostas.</mark>
+                    </p>
+                  </div>
                   <button className="rr-cta-btn" onClick={() => handleCheckoutClick('cta1')}>
                     Quero descobrir o que está por trás da minha sobrecarga
                   </button>
@@ -750,16 +791,18 @@ export default function App() {
                 <div className="rr-inner">
                   <span className="rr-eyebrow">Por que você funciona assim?</span>
                   <h2 className="rr-h2">Talvez o problema não seja falta de organização.</h2>
-                  <p className="rr-p">Você já tentou se organizar.</p>
-                  <p className="rr-p">
-                    Talvez tenha planejado, listado, priorizado e reorganizado a rotina inúmeras vezes.
-                  </p>
-                  <p className="rr-p">E ainda assim continua se sentindo sobrecarregada.</p>
-                  <p className="rr-p">Porque sobrecarga não é apenas acúmulo de tarefas.</p>
-                  <p className="rr-p">
-                    Às vezes, existe uma regra interna orientando a maneira como você responde ao que
-                    precisa ser feito.
-                  </p>
+                  <div className="rr-stack rr-measure">
+                    <p className="rr-lead">
+                      Você já tentou se organizar. Talvez tenha planejado, listado, priorizado e
+                      reorganizado a rotina inúmeras vezes. E ainda assim continua se sentindo
+                      sobrecarregada.
+                    </p>
+                    <p className="rr-p">
+                      Porque sobrecarga não é apenas acúmulo de tarefas. Às vezes, existe uma{' '}
+                      <strong>regra interna</strong> orientando a maneira como você responde ao que
+                      precisa ser feito.
+                    </p>
+                  </div>
                   <div className="rr-phrases">
                     {BLOCK7_PHRASES.map((t, i) => (
                       <p key={i} className="rr-phrase">
@@ -767,12 +810,14 @@ export default function App() {
                       </p>
                     ))}
                   </div>
-                  <p className="rr-p">Essas regras não aparecem do nada.</p>
-                  <p className="rr-p">
-                    Elas podem ser formas aprendidas de lidar com demandas, expectativas, culpa, medo,
-                    responsabilidade e necessidade de reconhecimento.
-                  </p>
-                  <p className="rr-p">E quando uma demanda aparece, o ciclo pode começar.</p>
+                  <div className="rr-stack rr-measure">
+                    <p className="rr-p">
+                      <strong>Essas regras não aparecem do nada.</strong> Elas podem ser formas
+                      aprendidas de lidar com demandas, expectativas, culpa, medo, responsabilidade e
+                      necessidade de reconhecimento.
+                    </p>
+                    <p className="rr-p">E quando uma demanda aparece, o ciclo pode começar.</p>
+                  </div>
                 </div>
               </div>
 
@@ -841,19 +886,23 @@ export default function App() {
                     <p className="rr-cycle-cap">O ciclo da sobrecarga</p>
                   </div>
                   <h2 className="rr-h2">O ciclo da sobrecarga.</h2>
-                  <p className="rr-p">O problema nem sempre termina quando a demanda termina.</p>
-                  <p className="rr-p">Porque o padrão que orientou a sua resposta pode continuar funcionando.</p>
-                  {BLOCK8_LINES.map((t, i) => (
-                    <p key={i} className="rr-p">
-                      {t}
-                    </p>
-                  ))}
-                  <p className="rr-p">E então a sobrecarga volta.</p>
-                  <p className="rr-highlight">
-                    É assim que você pode acabar confundindo sobrecarga com responsabilidade.
-                    <br />
-                    Mas um padrão aprendido não precisa continuar invisível.
+                  <p className="rr-p rr-measure">
+                    O problema nem sempre termina quando a demanda termina. Porque o padrão que orientou
+                    a sua resposta pode continuar funcionando.
                   </p>
+                  <ul className="rr-pills">
+                    {BLOCK8_LINES.map((t, i) => (
+                      <li key={i}>{t}</li>
+                    ))}
+                  </ul>
+                  <p className="rr-p">
+                    <strong>E então a sobrecarga volta.</strong>
+                  </p>
+                  <p className="rr-big">
+                    É assim que você pode acabar{' '}
+                    <mark>confundindo sobrecarga com responsabilidade.</mark>
+                  </p>
+                  <p className="rr-quote-xl">Mas um padrão aprendido não precisa continuar invisível.</p>
                 </div>
               </div>
 
@@ -862,9 +911,15 @@ export default function App() {
                 <div className="rr-inner">
                   <span className="rr-eyebrow">As 5 raízes da sobrecarga</span>
                   <h2 className="rr-h2">Talvez sua sobrecarga tenha uma raiz que você nunca percebeu.</h2>
-                  <p className="rr-lead">Qual destas frases parece mais familiar?</p>
-                  <p className="rr-p">Você não precisa escolher agora.</p>
-                  <p className="rr-p">Mas provavelmente uma delas vai incomodar um pouco mais.</p>
+                  <div className="rr-stack">
+                    <p className="rr-lead">
+                      <strong>Qual destas frases parece mais familiar?</strong>
+                    </p>
+                    <p className="rr-p">
+                      Você não precisa escolher agora. Mas provavelmente uma delas vai incomodar um pouco
+                      mais.
+                    </p>
+                  </div>
                   <div className="rr-roots">
                     {ROOT_ITEMS.map((r, i) => (
                       <button
@@ -882,13 +937,16 @@ export default function App() {
                       </button>
                     ))}
                   </div>
-                  <p className="rr-p">Talvez você tenha se reconhecido em mais de uma.</p>
-                  <p className="rr-p">Isso é possível.</p>
-                  <p className="rr-p">A proposta do Raiz não é colocar você em uma caixa.</p>
-                  <p className="rr-p">
-                    É identificar o padrão que aparece com mais força nas suas respostas e começar a
-                    observar como ele funciona na sua vida.
-                  </p>
+                  <div className="rr-card rr-card-navy">
+                    <p className="rr-p">
+                      <strong>Talvez você tenha se reconhecido em mais de uma. Isso é possível.</strong>
+                    </p>
+                    <p className="rr-p">
+                      A proposta do Raiz não é colocar você em uma caixa. É identificar o padrão que
+                      aparece com mais força nas suas respostas e começar a observar como ele funciona na
+                      sua vida.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -896,8 +954,9 @@ export default function App() {
               <div className="rr-band rr-band-dark rr-cta-anchor">
                 <div className="rr-inner rr-cta-block rr-center">
                   <h2 className="rr-h2">Você acabou de reconhecer algumas possibilidades.</h2>
-                  <p className="rr-p">
-                    Mas reconhecer uma frase é diferente de compreender o padrão que existe por trás dela.
+                  <p className="rr-lead">
+                    Mas reconhecer uma frase é diferente de <mark>compreender o padrão</mark> que existe por
+                    trás dela.
                   </p>
                   <p className="rr-p">
                     O Raiz da Sobrecarga® foi criado para ajudar você a fazer justamente essa investigação.
@@ -944,8 +1003,10 @@ export default function App() {
                   <h2 className="rr-h2">
                     Agora você pode começar a entender o que pode estar por trás do seu resultado.
                   </h2>
-                  <p className="rr-p">O Raiz da Sobrecarga® é uma experiência guiada de autorreflexão.</p>
-                  <p className="rr-p">Ela foi criada para ajudar você a:</p>
+                  <p className="rr-lead">
+                    O Raiz da Sobrecarga® é uma experiência guiada de autorreflexão. Ela foi criada para
+                    ajudar você a:
+                  </p>
                   <ul className="rr-checklist">
                     {RAIZ_IS_ITEMS.map((t, i) => (
                       <li key={i}>
@@ -954,10 +1015,9 @@ export default function App() {
                       </li>
                     ))}
                   </ul>
-                  <p className="rr-p">Não é uma promessa de mudar sua vida em alguns dias.</p>
-                  <p className="rr-p">
-                    É um primeiro espaço para enxergar algo que talvez tenha acontecido no automático por
-                    muito tempo.
+                  <p className="rr-quote-xl">
+                    Não é uma promessa de mudar sua vida em alguns dias. É um primeiro espaço para enxergar
+                    algo que talvez tenha acontecido no automático por muito tempo.
                   </p>
                   <div className="rr-steps">
                     {STEP_ITEMS.map((s) => (
@@ -1038,12 +1098,10 @@ export default function App() {
                       </li>
                     ))}
                   </ul>
-                  <p className="rr-p">
-                    O Raiz da Sobrecarga® é uma experiência de psicoeducação e autorreflexão.
-                  </p>
-                  <p className="rr-p">
-                    Se você vive um sofrimento psicológico intenso, esta experiência não substitui
-                    acompanhamento profissional individual.
+                  <p className="rr-p rr-measure">
+                    O Raiz da Sobrecarga® é uma experiência de psicoeducação e autorreflexão. Se você vive
+                    um sofrimento psicológico intenso, esta experiência não substitui acompanhamento
+                    profissional individual.
                   </p>
                 </div>
               </div>
@@ -1053,9 +1111,13 @@ export default function App() {
                 <div className="rr-inner">
                   <span className="rr-eyebrow">Comece pela raiz</span>
                   <h2 className="rr-h2">Você não precisa mudar a sua vida inteira hoje.</h2>
-                  <p className="rr-p">Só precisa começar a entender o que está acontecendo.</p>
-                  <p className="rr-p">O Raiz da Sobrecarga® foi criado para ser esse primeiro movimento.</p>
-                  <p className="rr-p">Dentro da experiência, você vai:</p>
+                  <p className="rr-lead">
+                    Só precisa começar a entender o que está acontecendo. O Raiz da Sobrecarga® foi criado
+                    para ser esse primeiro movimento.
+                  </p>
+                  <p className="rr-p">
+                    <strong>Dentro da experiência, você vai:</strong>
+                  </p>
                   <ul className="rr-checklist">
                     {OFFER_LIST_ITEMS.map((t, i) => (
                       <li key={i}>
@@ -1087,18 +1149,18 @@ export default function App() {
               <div className="rr-band">
                 <div className="rr-inner">
                   <h2 className="rr-h2">Você pode experimentar com tranquilidade.</h2>
-                  <p className="rr-p">
-                    Você tem 7 dias para acessar a experiência, conhecer o material e começar o primeiro
-                    exercício.
-                  </p>
-                  <p className="rr-p">
-                    Se perceber que o Raiz da Sobrecarga® não faz sentido para você, poderá solicitar o
-                    reembolso dentro do prazo de garantia.
-                  </p>
-                  <div className="rr-guarantee">
-                    <span className="rr-guarantee-icon" aria-hidden="true" />
+                  <div className="rr-guarantee-card">
+                    <span className="rr-shield" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="#D4B896" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 3l7 3v6c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6l7-3z" />
+                        <path d="M8.8 12.2l2.2 2.2 4.2-4.6" />
+                      </svg>
+                    </span>
                     <p>
-                      <strong>Garantia de 7 dias.</strong>
+                      <b>Garantia de 7 dias</b>
+                      Você tem 7 dias para acessar a experiência, conhecer o material e começar o primeiro
+                      exercício. Se perceber que o Raiz da Sobrecarga® não faz sentido para você, poderá
+                      solicitar o reembolso dentro do prazo de garantia.
                     </p>
                   </div>
                 </div>
@@ -1127,12 +1189,19 @@ export default function App() {
                 <div className="rr-inner rr-close">
                   <span className="rr-eyebrow">Agora você já sabe que está sobrecarregada.</span>
                   <h2 className="rr-h2">A próxima pergunta é o que pode estar por trás disso.</h2>
-                  {CLOSE_PARAS.map((p, i) => (
-                    <p key={i} className="rr-p">
-                      {p}
-                    </p>
-                  ))}
-                  <p className="rr-highlight">Comece pela raiz.</p>
+                  <p className="rr-p">{CLOSE_PARAS[0]}</p>
+                  <ul className="rr-pills rr-pills-center">
+                    {CLOSE_PARAS.slice(1, 5).map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ul>
+                  <p className="rr-p">{CLOSE_PARAS[5]}</p>
+                  <p className="rr-quote-xl">
+                    {CLOSE_PARAS[6]} {CLOSE_PARAS[7]}
+                  </p>
+                  <p className="rr-big">
+                    <mark>Comece pela raiz.</mark>
+                  </p>
                   <button className="rr-cta-btn" onClick={() => handleCheckoutClick('cta4')}>
                     Quero começar pela raiz — R$47
                   </button>

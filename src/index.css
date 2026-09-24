@@ -1775,3 +1775,87 @@ body {
     transition: none;
   }
 }
+
+/* ================================================================
+   POLIMENTO (2026-09-24) — volta à escala e aos componentes da Versão B.
+   Só apresentação: o texto é o da Karla, na ordem dela.
+   ================================================================ */
+.rr-inner { gap: 20px; }
+.rr-h1 { font-size: clamp(32px, 8.4vw, 50px); line-height: 1.06; text-align: left; letter-spacing: -.005em; }
+.rr-h2 { font-size: clamp(29px, 7vw, 44px); line-height: 1.08; letter-spacing: -.005em; }
+.rr-h2-hero { font-size: clamp(34px, 8.6vw, 60px); line-height: 1.04; }
+.rr-lead { font-size: clamp(17px, 2.2vw, 20px); line-height: 1.6; }
+.rr-p { font-size: 16.5px; line-height: 1.68; }
+.rr strong { color: var(--color-text-primary); font-weight: 700; }
+.rr-band-dark strong { color: #FDFAF7; }
+.rr mark { background: linear-gradient(transparent 58%, rgba(212, 184, 150, .45) 58%); color: inherit; padding: 0 .06em; }
+.rr-band-dark mark { background: linear-gradient(transparent 60%, rgba(212, 184, 150, .35) 60%); }
+.rr-measure { max-width: 60ch; }
+.rr-stack { display: grid; gap: 14px; }
+.rr-lede-italic { font-size: clamp(20px, 4.6vw, 26px); margin: -4px 0 0; }
+
+/* frase de destaque grande (não itálica, como o .big-line da B) */
+.rr-big { font-family: var(--font-display); font-weight: 600; font-size: clamp(25px, 5.8vw, 36px); line-height: 1.16; color: var(--color-text-primary); margin: 4px 0 0; text-wrap: balance; }
+.rr-band-dark .rr-big { color: #FDFAF7; }
+.rr-quote-xl { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: clamp(24px, 5.6vw, 34px); line-height: 1.2; color: var(--color-primary-dark); margin: 0; text-wrap: balance; }
+.rr-band-dark .rr-quote-xl { color: var(--color-accent); }
+
+/* cartões */
+.rr-card { background: var(--color-bg-card); border: 1px solid var(--color-line); border-radius: 20px; padding: 22px 20px; display: grid; gap: 12px; box-shadow: 0 12px 34px rgba(44, 62, 80, .07); }
+.rr-card-k { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--color-primary); }
+.rr-card-dark { background: rgba(253, 250, 247, .06); border: 1px solid rgba(212, 184, 150, .4); box-shadow: none; }
+.rr-card-dark .rr-card-k { color: var(--color-accent); }
+.rr-card-navy { background: var(--color-navy); border-color: var(--color-navy); color: #D5DEE7; box-shadow: none; }
+.rr-card-navy .rr-p { color: #D5DEE7; }
+.rr-card-navy strong { color: #FDFAF7; }
+
+/* lista com traço dourado (bloco 1) */
+.rr-dash { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.rr-dash li { display: grid; grid-template-columns: 18px 1fr; gap: 10px; font-size: 16.5px; line-height: 1.55; color: var(--color-text-body); }
+.rr-dash li::before { content: ""; width: 14px; height: 2px; margin-top: 12px; background: var(--color-accent); border-radius: 2px; }
+
+/* lista numerada (bloco 5) */
+.rr-numlist { list-style: none; margin: 0; padding: 0; counter-reset: rrn; display: grid; }
+.rr-numlist li { counter-increment: rrn; display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 14px 0; border-top: 1px solid var(--color-line); font-size: 16.5px; line-height: 1.5; color: var(--color-text-body); }
+.rr-numlist li:last-child { border-bottom: 1px solid var(--color-line); }
+.rr-numlist li::before { content: counter(rrn); font-family: var(--font-display); font-size: 28px; font-weight: 700; line-height: .9; color: var(--color-accent-deep); }
+
+/* pílulas (tentativas, verbos do ciclo, "mais ...") */
+.rr-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.rr-pills li { font-size: 15px; padding: 7px 14px; border-radius: 999px; background: var(--color-bg-card); border: 1px solid var(--color-line); color: var(--color-text-primary); }
+.rr-band-alt .rr-pills li { background: var(--color-bg-card); }
+.rr-band-dark .rr-pills li { background: rgba(253, 250, 247, .07); border-color: rgba(212, 184, 150, .35); color: #FDFAF7; }
+.rr-pills-center { justify-content: center; }
+
+/* bloco 1: resultado em cartão */
+.rr-result-card { background: var(--color-bg-card); border: 1px solid var(--color-line); border-radius: 22px; padding: 24px 20px 20px; box-shadow: 0 12px 34px rgba(44, 62, 80, .08); display: grid; justify-items: center; gap: 4px; }
+.rr-result-card .score-arc-section { margin: 0; }
+.rr-result-card .rr-h3 { font-size: 26px; }
+
+/* bloco 2: assinatura sob o vídeo */
+.rr-video-col { display: grid; gap: 14px; justify-items: center; }
+.rr-sig { display: flex; align-items: center; gap: 12px; justify-self: center; }
+.rr-sig img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.rr-sig b { display: block; color: var(--color-text-primary); font-size: 15px; }
+.rr-sig span { font-size: 12px; color: var(--color-text-muted); }
+
+/* bloco 7: frases como regras (maiores, como na B) */
+.rr-phrase { font-size: clamp(21px, 4.8vw, 27px); padding-left: 18px; }
+.rr-phrases { gap: 14px; margin: 6px 0; }
+
+/* bloco 9: cartões das raízes com a escala da B */
+.rr-root-quote { font-size: 21px; }
+.rr-root-chip { padding: 16px 18px; border-radius: 16px; }
+
+/* bloco 5: texto à esquerda, só o botão centralizado */
+.rr-cta-block.rr-left { justify-items: stretch; text-align: left; }
+
+/* bloco 19: garantia */
+.rr-guarantee-card { display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: center; background: var(--color-bg-card); border: 1px solid var(--color-line); border-radius: 18px; padding: 18px; }
+.rr-shield { width: 52px; height: 52px; border-radius: 50%; background: var(--color-navy); display: grid; place-items: center; }
+.rr-shield svg { width: 26px; height: 26px; }
+.rr-guarantee-card p { margin: 0; font-size: 15.5px; line-height: 1.55; color: var(--color-text-body); }
+.rr-guarantee-card b { display: block; font-family: var(--font-display); font-size: 22px; color: var(--color-text-primary); margin-bottom: 2px; }
+
+/* fechamento */
+.rr-close .rr-big { text-align: center; }

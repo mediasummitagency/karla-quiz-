@@ -415,6 +415,29 @@ export default function App() {
     return () => obs.disconnect()
   }, [screen, stickyRevealed])
 
+  // Sem palavra sozinha na última linha: prende as duas últimas palavras de cada texto do
+  // resultado com um espaço inquebrável. `text-wrap: pretty` faz o mesmo, mas o Safari do
+  // iPhone só entende a partir do iOS 26, e quase todo o público dela está no celular.
+  useEffect(() => {
+    if (screen !== 'result') return
+    document
+      .querySelectorAll('.rr p, .rr h1, .rr h2, .rr h3, .rr li, .rr summary, .rr blockquote')
+      .forEach((el) => {
+        const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
+        let last = null
+        while (walker.nextNode()) if (walker.currentNode.textContent.trim()) last = walker.currentNode
+        if (!last) return
+        const text = last.textContent
+        const trimmed = text.replace(/\s+$/, '')
+        if (/ \S*$/.test(trimmed)) return // já tratado (o efeito roda duas vezes em dev)
+        const i = trimmed.lastIndexOf(' ')
+        // Só quando a última palavra é curta o bastante para não empurrar um bloco enorme.
+        if (i > 0 && trimmed.length - i <= 18) {
+          last.textContent = trimmed.slice(0, i) + ' ' + trimmed.slice(i + 1) + text.slice(trimmed.length)
+        }
+      })
+  }, [screen])
+
   useEffect(() => {
     if (STEP_SCREENS.includes(screen)) {
       document.body.classList.add('quiz-active')
@@ -800,10 +823,10 @@ export default function App() {
               {/* BLOCO 1 — Resultado da Escala */}
               <div className="rr-band">
                 <div className="rr-inner">
-                  <h1 className="rr-h1" data-clarity-mask="true">
+                  <h1 className="rr-h1 rr-b1-text" data-clarity-mask="true">
                     {firstName ? `${firstName}, agora` : 'Agora'} você sabe o quanto está sobrecarregada.
                   </h1>
-                  <p className="rr-lead">
+                  <p className="rr-lead rr-b1-text">
                     Sua pontuação mostra a intensidade da sua sobrecarga neste momento.
                   </p>
 
@@ -888,20 +911,20 @@ export default function App() {
                     </div>
                   )}
 
-                  <div className="rr-stack rr-measure">
+                  <div className="rr-stack rr-measure rr-b1-text">
                     <p className="rr-p">{BLOCK1_PARAS[0]}</p>
                     <p className="rr-p">
                       <strong>{BLOCK1_PARAS[1]}</strong>
                     </p>
-                    <ul className="rr-dash">
+                    <ul className="rr-dash rr-dash-center">
                       {BLOCK1_PARAS.slice(2).map((p, i) => (
                         <li key={i}>{p}</li>
                       ))}
                     </ul>
                   </div>
 
-                  <p className="rr-big">
-                    Você já sabe o quanto está sobrecarregada.
+                  <p className="rr-big rr-b1-text">
+                    Você já sabe o quanto está{'\u00A0'}sobrecarregada.
                     <br />
                     Agora existe uma <mark>outra pergunta.</mark>
                   </p>

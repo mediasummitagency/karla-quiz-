@@ -2021,3 +2021,13 @@ body {
 .rr-open-answer { margin: 0; padding: 12px 14px; background: rgba(212, 184, 150, .16); border-radius: 12px; font-family: var(--font-display); font-style: italic; font-size: 19px; line-height: 1.45; color: var(--color-text-primary); }
 .rr-open-answer span { display: block; font-family: var(--font-body); font-style: normal; font-size: 12px; color: var(--color-text-muted); margin-bottom: 4px; }
 .rr-support-note { margin: 0; padding-top: 12px; border-top: 1px solid var(--color-line); font-size: 13.5px; line-height: 1.65; color: var(--color-text-muted); }
+
+/* bloco 1: o texto abaixo dos cartões do resultado fica centralizado, alinhado com eles */
+.rr-b1-text, .rr-h1.rr-b1-text { justify-self: center; text-align: center; }
+.rr-dash-center li { display: block; }
+.rr-dash-center li::before { display: none; }
+.rr-dash-center { gap: 10px; }
+
+/* Nada de palavra sozinha na última linha: títulos equilibram as linhas, parágrafos evitam órfãs. */
+.rr h1, .rr h2, .rr h3, .rr-lead, .rr-lede-italic { text-wrap: balance; }
+.rr p, .rr li, .rr blockquote { text-wrap: pretty; }

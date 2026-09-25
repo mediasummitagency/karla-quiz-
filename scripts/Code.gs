@@ -1,7 +1,8 @@
 /**
  * Google Apps Script - Quiz Webhook
  * Copy this file content to Extensões → Apps Script in your Google Sheet.
- * Sheet: Row 1 = Timestamp | Nome | Email | WhatsApp | Nível | Pontuação | Q1 | Q2 | ... | Q18
+ * Sheet: Row 1 = Timestamp | Nome | Email | WhatsApp | Nível | Pontuação | Q1 | Q2 | ... | Q18 | Contexto | Tempo | Resposta aberta
+ *        (the last 3 come from the interactive steps, added 2026-09-25; they sit after Q18 so no older column moves)
  *        Row 2 = (empty for first 6 cols) | question text for Q1-Q18
  */
 
@@ -38,6 +39,7 @@ function setupHeaders() {
     for (var i = 1; i <= 18; i++) {
       headerRow1.push('Q' + i);
     }
+    headerRow1.push('Contexto', 'Tempo', 'Resposta aberta');
     sheet.getRange(1, 1, 1, headerRow1.length).setValues([headerRow1]);
 
     var headerRow2 = ['', '', '', '', '', ''];
@@ -75,6 +77,9 @@ function doPost(e) {
     data.pontuacao || ''
   ];
   row = row.concat(respostas);
+  // Pad to 18 answers so the 3 new columns always land under their own headers.
+  while (row.length < 6 + 18) row.push('');
+  row.push(data.contexto || '', data.tempo || '', data.resposta_aberta || '');
   sheet.appendRow(row);
 
   // Send result email to user

@@ -93,6 +93,50 @@ function getResultLevel(score) {
   return RESULT_LEVELS.find((l) => score >= l.min && score <= l.max) || RESULT_LEVELS[0]
 }
 
+// ============ ETAPAS INTERATIVAS (não pontuam; só personalizam o resultado e o lead) ============
+const CONTEXT_OPTIONS = [
+  { key: 'trabalho', label: 'Trabalho fora', phrase: 'o trabalho' },
+  { key: 'empreendo', label: 'Empreendo / trabalho em casa', phrase: 'o seu negócio' },
+  { key: 'filhos', label: 'Filhos', phrase: 'os filhos' },
+  { key: 'familia', label: 'Cuidar de pais ou familiares', phrase: 'o cuidado com a família' },
+  { key: 'casa', label: 'Casa', phrase: 'a casa' },
+  { key: 'estudos', label: 'Estudos', phrase: 'os estudos' },
+]
+
+const DURATION_OPTIONS = [
+  { key: 'semanas', label: 'Algumas semanas', phrase: 'há algumas semanas' },
+  { key: 'meses', label: 'Alguns meses', phrase: 'há alguns meses' },
+  { key: 'ano', label: 'Mais de um ano', phrase: 'há mais de um ano' },
+  { key: 'sempre', label: 'Nem lembro como era antes', phrase: 'há tanto tempo que nem lembra como era antes' },
+]
+
+// As 18 perguntas continuam as mesmas e na mesma ordem; só ganham pausas a cada 6.
+const CHAPTER_SIZE = 6
+const CHAPTER_TITLES = ['Seu dia a dia', 'Suas cobranças', 'Você por dentro']
+
+// Telas com barra de progresso: nome, contexto, duração, 18 perguntas (com pausas), pergunta aberta.
+const STEP_SCREENS = ['name', 'context', 'duration', 'quiz', 'break', 'open']
+const TOTAL_STEPS = 22
+
+// A raiz NÃO é revelada de graça (decisão 2026-09-25): a Escala responde "o quanto", o Raiz pago
+// responde "o que pode estar alimentando" (regra 41 do comando da Karla). O preview que revelava a
+// raiz ficou no branch preview/escala-interativa.
+
+function joinPt(list) {
+  if (list.length <= 1) return list.join('')
+  return `${list.slice(0, -1).join(', ')} e ${list[list.length - 1]}`
+}
+
+// As 3 afirmações que ela marcou com mais intensidade (empate: a que veio primeiro).
+function getTopSignals(answers) {
+  return answers
+    .map((v, i) => ({ v, i }))
+    .filter((a) => a.v >= 2)
+    .sort((a, b) => b.v - a.v || a.i - b.i)
+    .slice(0, 3)
+    .map((a) => ({ text: QUESTIONS[a.i], label: SCALE_LABELS[a.v] }))
+}
+
 // ============ RAIZ DA SOBRECARGA — RESULT PAGE COPY (verbatim from Karla's brief) ============
 const BLOCK1_PARAS = [
   'O seu resultado mostra o quanto a sobrecarga está presente na sua vida neste momento.',
@@ -300,6 +344,9 @@ export default function App() {
   const [stickyRevealed, setStickyRevealed] = useState(false)
   const [ctaBlockVisible, setCtaBlockVisible] = useState(false)
   const [selectedRoots, setSelectedRoots] = useState(() => new Set())
+  const [contextPicks, setContextPicks] = useState([])
+  const [duration, setDuration] = useState(null)
+  const [openAnswer, setOpenAnswer] = useState('')
   const offerViewedFiredRef = useRef(false)
 
   useEffect(() => {
@@ -369,7 +416,7 @@ export default function App() {
   }, [screen, stickyRevealed])
 
   useEffect(() => {
-    if (screen === 'quiz') {
+    if (STEP_SCREENS.includes(screen)) {
       document.body.classList.add('quiz-active')
     } else {
       document.body.classList.remove('quiz-active')
@@ -378,7 +425,8 @@ export default function App() {
   }, [screen])
 
   const totalQuestions = QUESTIONS.length
-  const progress = totalQuestions > 0 ? (answers.length / totalQuestions) * 100 : 0
+  const stepsDone = { name: 0, context: 1, duration: 2, open: 21 }[screen] ?? 3 + answers.length
+  const progress = (stepsDone / TOTAL_STEPS) * 100
 
   const handleScreenChange = (newScreen) => setScreen(newScreen)
 
@@ -388,7 +436,13 @@ export default function App() {
 
     if (newAnswers.length >= totalQuestions) {
       track('quiz_complete')
-      setTimeout(() => handleScreenChange('lead'), 400)
+      setTimeout(() => handleScreenChange('open'), 400)
+    } else if (newAnswers.length % CHAPTER_SIZE === 0) {
+      // Fim de uma parte: pausa com um retorno sobre o que ela acabou de responder.
+      setTimeout(() => {
+        setCurrentQuestion(newAnswers.length)
+        handleScreenChange('break')
+      }, 400)
     } else {
       setTimeout(() => setCurrentQuestion(newAnswers.length), 400)
     }
@@ -415,6 +469,13 @@ export default function App() {
           pontuacao: score,
           devolutiva: level.devolutiva,
           respostas: answers.map((idx) => SCALE_LABELS[idx]),
+          // Campos das etapas interativas. O Code.gs grava depois do Q18, então as colunas
+          // antigas (e o Zap do WhatsApp, que lê por nome) não mudam de lugar.
+          contexto: CONTEXT_OPTIONS.filter((o) => contextPicks.includes(o.key))
+            .map((o) => o.label)
+            .join(', '),
+          tempo: DURATION_OPTIONS.find((o) => o.key === duration)?.label || '',
+          resposta_aberta: openAnswer.trim(),
         }),
       }).catch((err) => console.warn('Webhook submit failed:', err))
     }
@@ -434,12 +495,19 @@ export default function App() {
 
   const score = answers.reduce((a, b) => a + b, 0)
   const resultLevel = getResultLevel(score)
+  const topSignals = getTopSignals(answers)
+  const contextPhrase = joinPt(
+    CONTEXT_OPTIONS.filter((o) => contextPicks.includes(o.key)).map((o) => o.phrase)
+  )
+  const durationPhrase = DURATION_OPTIONS.find((o) => o.key === duration)?.phrase
+  // Pergunta 18: "Já pensei que não aguento manter esse ritmo por muito tempo."
+  const showSupportNote = (answers[17] ?? 0) >= 3
 
   return (
     <div className="app">
       <div className="bg-mesh" aria-hidden="true" />
 
-      {screen === 'quiz' && (
+      {STEP_SCREENS.includes(screen) && (
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${progress}%` }} />
         </div>
@@ -473,7 +541,7 @@ export default function App() {
               className="cta-button"
               onClick={() => {
                 track('quiz_start')
-                handleScreenChange('quiz')
+                handleScreenChange('name')
               }}
             >
               Quero fazer o teste
@@ -514,22 +582,189 @@ export default function App() {
           </section>
         )}
 
-        {/* SCREEN 3 — LEAD CAPTURE */}
-        {screen === 'lead' && (
-          <section className="screen-content">
-            <h1 className="headline">Seu resultado está pronto.</h1>
-            <p className="subheadline">
-              Coloque seu nome e WhatsApp para acessar sua análise personalizada.
-            </p>
-            <form onSubmit={handleLeadSubmit} className="lead-form" data-clarity-mask="true">
+        {/* ETAPA 0 — NOME (personaliza todo o resto) */}
+        {screen === 'name' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">ANTES DE COMEÇAR</p>
+              <h2 className="question-text">Como você gosta de ser chamada?</h2>
+            </div>
+            <form
+              className="step-form"
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (formData.nome.trim()) handleScreenChange('context')
+              }}
+            >
               <input
                 type="text"
-                placeholder="Nome"
+                placeholder="Seu primeiro nome"
                 value={formData.nome}
                 onChange={(e) => setFormData((f) => ({ ...f, nome: e.target.value }))}
-                required
                 className="input-field"
+                autoFocus
+                required
+                data-clarity-mask="true"
               />
+              <button type="submit" className="cta-button" disabled={!formData.nome.trim()}>
+                Continuar
+              </button>
+            </form>
+          </section>
+        )}
+
+        {/* ETAPA 1 — O QUE OCUPA OS DIAS DELA (várias escolhas) */}
+        {screen === 'context' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">
+                {firstName ? `PRAZER, ${firstName.toUpperCase()}` : 'PRAZER'}
+              </p>
+              <h2 className="question-text">O que mais ocupa os seus dias hoje?</h2>
+              <p className="step-hint">Pode marcar mais de uma opção.</p>
+            </div>
+            <div className="chip-grid">
+              {CONTEXT_OPTIONS.map((o) => {
+                const on = contextPicks.includes(o.key)
+                return (
+                  <button
+                    key={o.key}
+                    type="button"
+                    className={`chip ${on ? 'selected' : ''}`}
+                    aria-pressed={on}
+                    onClick={() =>
+                      setContextPicks((c) => (on ? c.filter((k) => k !== o.key) : [...c, o.key]))
+                    }
+                  >
+                    <span className="chip-check" aria-hidden="true">{on ? '✓' : '+'}</span>
+                    {o.label}
+                  </button>
+                )
+              })}
+            </div>
+            <button
+              type="button"
+              className="cta-button step-next"
+              disabled={contextPicks.length === 0}
+              onClick={() => handleScreenChange('duration')}
+            >
+              Continuar
+            </button>
+          </section>
+        )}
+
+        {/* ETAPA 2 — HÁ QUANTO TEMPO */}
+        {screen === 'duration' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">MAIS UMA COISA</p>
+              <h2 className="question-text">
+                Há quanto tempo você sente que está carregando mais do que consegue?
+              </h2>
+            </div>
+            <div className="scale-cards">
+              {DURATION_OPTIONS.map((o) => (
+                <button
+                  key={o.key}
+                  type="button"
+                  className={`scale-card step-card-option ${duration === o.key ? 'selected' : ''}`}
+                  disabled={!!duration}
+                  onClick={() => {
+                    setDuration(o.key)
+                    setTimeout(() => handleScreenChange('break'), 400)
+                  }}
+                >
+                  <span className="scale-card-label">{o.label}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* PAUSA ENTRE AS PARTES — abre cada bloco de 6 e devolve o que ela acabou de marcar */}
+        {screen === 'break' && (() => {
+          const part = Math.floor(answers.length / CHAPTER_SIZE) // 0, 1 ou 2
+          const last = answers.slice(-CHAPTER_SIZE)
+          const heavy = answers.length ? last.filter((v) => v >= 3).length : 0
+          return (
+            <section className="screen-content chapter-break" key={`break-${part}`}>
+              <p className="chapter-count">PARTE {part + 1} DE 3</p>
+              <h1 className="headline chapter-title">{CHAPTER_TITLES[part]}</h1>
+              {part === 0 ? (
+                <p className="subheadline">
+                  {firstName}, agora são 18 frases curtas, em três partes. Responda pensando nas
+                  últimas semanas, sem pensar demais. Não existe resposta certa.
+                </p>
+              ) : (
+                <>
+                  <div className="chapter-dots" aria-hidden="true">
+                    {last.map((v, i) => (
+                      <span key={i} className={`chapter-dot ${v >= 3 ? 'is-heavy' : ''}`} style={{ animationDelay: `${200 + i * 110}ms` }} />
+                    ))}
+                  </div>
+                  <p className="subheadline">
+                    {heavy >= 4
+                      ? `Na parte anterior, ${heavy} de 6 frases aparecem com frequência na sua vida. Isso é muita coisa para carregar, ${firstName}. Vamos continuar com calma.`
+                      : heavy >= 2
+                        ? `Na parte anterior, ${heavy} de 6 frases aparecem com frequência na sua vida. Já dá para ver onde o peso está se acumulando.`
+                        : `Na parte anterior, poucas frases aparecem com frequência na sua vida. Vamos ver se isso se repete na próxima parte.`}
+                  </p>
+                </>
+              )}
+              <button
+                type="button"
+                className="cta-button"
+                onClick={() => handleScreenChange('quiz')}
+              >
+                {part === 0 ? 'Começar' : 'Continuar'}
+              </button>
+            </section>
+          )
+        })()}
+
+        {/* ETAPA FINAL — A PERGUNTA ABERTA (opcional, aparece de volta no resultado) */}
+        {screen === 'open' && (
+          <section className="screen-content quiz-content">
+            <div className="question-block">
+              <p className="question-number">SE QUISER</p>
+              <h2 className="question-text">
+                Se você pudesse tirar uma coisa dos seus ombros agora, o que seria?
+              </h2>
+              <p className="step-hint">Opcional. Só você e a Karla vão ver.</p>
+            </div>
+            <form
+              className="step-form"
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleScreenChange('lead')
+              }}
+            >
+              <textarea
+                className="input-field step-textarea"
+                rows={3}
+                maxLength={280}
+                placeholder="Escreva com as suas palavras..."
+                value={openAnswer}
+                onChange={(e) => setOpenAnswer(e.target.value)}
+                data-clarity-mask="true"
+              />
+              <button type="submit" className="cta-button">
+                {openAnswer.trim() ? 'Ver meu resultado' : 'Pular e ver meu resultado'}
+              </button>
+            </form>
+          </section>
+        )}
+
+        {/* SCREEN 3 — LEAD CAPTURE (o nome já veio da etapa 0) */}
+        {screen === 'lead' && (
+          <section className="screen-content">
+            <h1 className="headline">
+              {firstName ? `${firstName}, seu resultado está pronto.` : 'Seu resultado está pronto.'}
+            </h1>
+            <p className="subheadline">
+              Deixe seu e-mail e WhatsApp para acessar seu resultado.
+            </p>
+            <form onSubmit={handleLeadSubmit} className="lead-form" data-clarity-mask="true">
               <input
                 type="email"
                 placeholder="seu@email.com"
@@ -614,6 +849,43 @@ export default function App() {
                     </p>
                   </div>
                   </div>
+
+                  {/* Retrato das respostas dela (etapas interativas). Fica no "o quanto": mostra o
+                      que pesou, nunca a raiz, que é o que o Raiz pago investiga. */}
+                  {(contextPhrase || topSignals.length > 0 || openAnswer.trim()) && (
+                    <div className="rr-card rr-portrait" data-clarity-mask="true">
+                      <span className="rr-card-k">O que apareceu nas suas respostas</span>
+                      {contextPhrase && (
+                        <p className="rr-p">
+                          Você concilia <strong>{contextPhrase}</strong>
+                          {durationPhrase ? <>, e se sente assim <strong>{durationPhrase}</strong></> : null}.
+                        </p>
+                      )}
+                      {topSignals.length > 0 && (
+                        <ul className="rr-signals">
+                          {topSignals.map((s, i) => (
+                            <li key={i}>
+                              <span className="rr-signal-tag">{s.label}</span>
+                              {s.text}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      {openAnswer.trim() && (
+                        <blockquote className="rr-open-answer">
+                          <span>Você escreveu que tiraria dos seus ombros:</span>
+                          “{openAnswer.trim()}”
+                        </blockquote>
+                      )}
+                      {showSupportNote && (
+                        <p className="rr-support-note">
+                          Se em algum momento esse peso ficar grande demais, você não precisa carregá-lo
+                          sozinha. O CVV atende de graça, 24 horas, pelo telefone 188 ou pelo site
+                          cvv.org.br.
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   <div className="rr-stack rr-measure">
                     <p className="rr-p">{BLOCK1_PARAS[0]}</p>

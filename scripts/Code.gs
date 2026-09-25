@@ -1,9 +1,10 @@
 /**
  * Google Apps Script - Quiz Webhook
  * Copy this file content to Extensões → Apps Script in your Google Sheet.
- * Sheet: Row 1 = Timestamp | Nome | Email | WhatsApp | Nível | Pontuação | Q1 | Q2 | ... | Q18 | Contexto | Tempo | Resposta aberta
- *        (the last 3 come from the interactive steps, added 2026-09-25; they sit after Q18 so no older column moves)
- *        Row 2 = (empty for first 6 cols) | question text for Q1-Q18
+ * Sheet: Row 1 = Timestamp | Nome | Email | WhatsApp | Nível | Pontuação | Última ação realizada | Observação | Q1 ... Q18 | Contexto | Tempo | Resposta aberta
+ *        Columns A-Z match Karla's live sheet as of 2026-09-25. G and H are HER manual follow-up columns: the script
+ *        always leaves them blank. Contexto/Tempo/Resposta aberta (AA-AC) come from the interactive steps.
+ *        Row 2 = (empty for first 8 cols) | question text for Q1-Q18
  */
 
 // ============ CONFIGURATION ============
@@ -35,14 +36,14 @@ function setupHeaders() {
   var lastRow = sheet.getLastRow();
 
   if (lastRow === 0) {
-    var headerRow1 = ['Timestamp', 'Nome', 'Email', 'WhatsApp', 'Nível', 'Pontuação'];
+    var headerRow1 = ['Timestamp', 'Nome', 'Email', 'WhatsApp', 'Nível', 'Pontuação', 'Última ação realizada', 'Observação'];
     for (var i = 1; i <= 18; i++) {
       headerRow1.push('Q' + i);
     }
     headerRow1.push('Contexto', 'Tempo', 'Resposta aberta');
     sheet.getRange(1, 1, 1, headerRow1.length).setValues([headerRow1]);
 
-    var headerRow2 = ['', '', '', '', '', ''];
+    var headerRow2 = ['', '', '', '', '', '', '', ''];
     QUESTIONS.forEach(function (q) {
       headerRow2.push(q);
     });
@@ -51,7 +52,7 @@ function setupHeaders() {
   }
 
   if (lastRow === 1) {
-    var headerRow2 = ['', '', '', '', '', ''];
+    var headerRow2 = ['', '', '', '', '', '', '', ''];
     QUESTIONS.forEach(function (q) {
       headerRow2.push(q);
     });
@@ -74,11 +75,13 @@ function doPost(e) {
     data.email || '',
     data.whatsapp || '',
     data.nivel || '',
-    data.pontuacao || ''
+    data.pontuacao || '',
+    '', // G: Última ação realizada (Karla fills this in by hand)
+    ''  // H: Observação (Karla fills this in by hand)
   ];
   row = row.concat(respostas);
   // Pad to 18 answers so the 3 new columns always land under their own headers.
-  while (row.length < 6 + 18) row.push('');
+  while (row.length < 8 + 18) row.push('');
   row.push(data.contexto || '', data.tempo || '', data.resposta_aberta || '');
   sheet.appendRow(row);
 

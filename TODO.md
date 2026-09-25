@@ -5,9 +5,42 @@ Open work for this project. Finished items move to a session summary in
 
 ---
 
+## 0. Sales page on the result screen
+
+**Status:** drafts with Karla for review · **Added:** 2026-09-23
+
+Karla wants a real sales page between the result video and Kiwify. We agreed it goes **on the
+result screen itself**, with no new page or domain. The two review drafts (Version A follows her
+doc, Version B is our CRO take) are in
+`_workspace/review/2026-09-23/*-v3.html`. Details in
+`_workspace/Work-sessions/session-summary-2026-09-23-sales-page-drafts.md`.
+
+- [ ] Karla picks a version and sends back the missing inputs: price, quiz-taker count,
+      testimonials (check CFP rules first), 3 product screenshots, product format, a larger photo
+- [ ] Build it into `src/App.jsx` in place of the `offer-bridge` section, **together with item 1**
+
+---
+
 ## 1. Set up Meta Pixel, Microsoft Clarity and GA4
 
-**Status:** not started · **Added:** 2026-09-15 · **Blocks:** every CRO change below
+**Status:** code wired 2026-09-24, switched off until real IDs exist · **Added:** 2026-09-15 ·
+**Blocks:** every CRO change below
+
+`GA4_ID` / `META_PIXEL_ID` / `CLARITY_ID` in `src/tracking.js` are all `''` — each tool only
+loads once its ID is filled in, so nothing fires and no network request goes out yet. `track()`
+fans `quiz_start`, `quiz_complete`, `lead_submit` (Meta `Lead`), `offer_viewed` (fires once,
+independent of the sticky-bar video gate), and `checkout_click` (Meta `InitiateCheckout`, param
+`button: 'bridge'|'sticky'`) out to whichever tools are loaded. Verified end-to-end with test IDs
+in a headless browser (Apps Script route-blocked first) — event order and Meta standard-event
+mapping both confirmed; confirmed zero requests with IDs empty (see commit for details).
+
+**Still needed:**
+- [ ] The three real IDs (GA4 property, Meta Pixel, Clarity project — Karla's own, not Summit's)
+- [ ] Once IDs are in, confirm the Kiwify side: does its own pixel/checkout page pick up the
+      `utm_source`/`utm_medium`/`utm_content` now appended to `CHECKOUT_URL`, or does Kiwify need
+      its own pixel configured separately for the purchase event to attribute back
+- [ ] LGPD consent decision (see Watch out, below) — `trackingAllowed()` in `src/tracking.js`
+      returns `true` unconditionally right now and is the single gate to change later
 
 Right now the quiz has **no tracking of any kind** — no GA4, no Meta Pixel, no Clarity.
 Confirmed 2026-09-15 by grepping both `src/` and the built bundle; the only Facebook strings

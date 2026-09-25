@@ -46,3 +46,12 @@ day — iOS blocks autoplay with sound, so it cost two taps; `youtube-nocookie` 
 drops all doubleclick calls (19 reqs w/ ads vs 16 w/ none) at no UX cost. | TRIGGER: Lucas tested
 on a phone and hit the double tap. | FIX: Plain embed + `-nocookie` + `enablejsapi` for the offer-bar
 gate. Don't re-propose a facade here unless the videos go muted.
+
+[2026-09-24] LESSON: The `.offer-bridge` IntersectionObserver only runs once `watchedEnough` is
+true, so piggy-backing `offer_viewed` tracking on it skipped anyone who scrolls there without
+3 min of video. | TRIGGER: Playwright showed no event fired on scroll. | FIX: Gave
+`offer_viewed` its own observer keyed only on `screen === 'result'`.
+
+[2026-09-25] LESSON: This repo already deploys itself: a push to `main` runs a GitHub Action that builds and FTP-syncs `dist/` to Karla's `public_html`. | TRIGGER: Lucas assumed nothing deployed from Git and opened Hostinger's Git panel. | FIX: Push `main` to deploy, and use the manual bundle only as a fallback.
+
+[2026-09-25] LESSON: "Rebuild the upload folder" means run `./scripts/build-upload.sh`, which recreates `upload-ready/to-upload/` and `to-upload.zip` with only the built site for `public_html`. | TRIGGER: Lucas uploads to Hostinger by hand and wanted one repeatable command. | FIX: Run the script, then upload the folder's contents into an emptied `public_html`.

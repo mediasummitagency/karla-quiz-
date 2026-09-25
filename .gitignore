@@ -5,3 +5,4 @@ dist/
 
 # Pastas de upload manual para a Hostinger (saída de build, reproduzível via npm run build)
 upload-hostinger-*/
+upload-ready/

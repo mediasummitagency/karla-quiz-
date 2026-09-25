@@ -26,3 +26,10 @@ Lucas asked to stitch the two pieces sent to Karla on 09-24 into the final produ
 
 ## Next session starts here
 Push `main` (or upload the 09-25 bundle), then run one real test on a phone and delete the test row from the sheet. Paste the new `scripts/Code.gs` into her Apps Script and redeploy.
+
+## Update — same day
+- Lucas uploaded `upload-ready/to-upload/` (from the new `scripts/build-upload.sh`) by hand; the live site serves `index-C14_UmUk.js`. `main` pushed to GitHub (`d15a204`), which also ran the FTP auto-deploy with the same build.
+- `_workspace/inputs/` and `_workspace/review/` deliberately not committed: the repo is public and they hold Karla's brief and paid-product copy.
+- Apps Script: the repo's `Code.gs` has a placeholder `OWNER_EMAIL`, so the live script was NOT replaced wholesale. Lucas got only the 3 new lines to paste under `row = row.concat(respostas);`, plus the instruction to redeploy as a new version of the existing deployment and add the 3 headers in Y1:AA1.
+- Changed plan: Lucas asked for the whole script on the clipboard. Her real owner email isn't recorded anywhere, and Lucas chose to turn the owner email off (`OWNER_EMAIL = ''`, `af9a040`) because the WhatsApp Zap already alerts Karla. The full `Code.gs` went to his clipboard.
+- ⚠️ First paste went wrong: Karla's live sheet has G "Última ação realizada" and H "Observação" (her manual follow-up), so Q1-Q18 are I-Z. The repo copy wrote answers from G. Caught from Lucas's screenshot before any lead arrived; Lucas rolled the deployment back to the previous version. `Code.gs` fixed (`G`/`H` left blank, new fields AA-AC) and a mock `doPost` run confirmed every value lands under its header. Lucas's AC header reads "Resporta Aberta" (typo, cosmetic).

@@ -55,3 +55,5 @@ true, so piggy-backing `offer_viewed` tracking on it skipped anyone who scrolls 
 [2026-09-25] LESSON: This repo already deploys itself: a push to `main` runs a GitHub Action that builds and FTP-syncs `dist/` to Karla's `public_html`. | TRIGGER: Lucas assumed nothing deployed from Git and opened Hostinger's Git panel. | FIX: Push `main` to deploy, and use the manual bundle only as a fallback.
 
 [2026-09-25] LESSON: "Rebuild the upload folder" means run `./scripts/build-upload.sh`, which recreates `upload-ready/to-upload/` and `to-upload.zip` with only the built site for `public_html`. | TRIGGER: Lucas uploads to Hostinger by hand and wanted one repeatable command. | FIX: Run the script, then upload the folder's contents into an emptied `public_html`.
+
+[2026-09-25] LESSON: The repo's `scripts/Code.gs` had drifted from the live Apps Script: Karla's sheet has two manual columns (G "Última ação realizada", H "Observação"), so Q1-Q18 sit in I-Z. | TRIGGER: Pasting the repo copy shifted every answer two columns left. | FIX: Check the live sheet's row 1 before deploying any script change; the repo copy now matches A-AC.

@@ -1,36 +1,31 @@
 # Session summary — 2026-09-25
 
-**Session ended:** 2026-09-25 EDT
+**Session ended:** 2026-09-25 14:29 EDT
 
 ## What happened
-Lucas asked to stitch the two pieces sent to Karla on 09-24 into the final product: the interactive Escala (branch `preview/escala-interativa`) in front of the 21-block result + offer page (`main`). Done in one commit on `main`. The free root reveal was left out (see decision below). Lucas also asked about deploying straight from Git via Hostinger's Git panel; it turned out the repo already auto-deploys from GitHub.
+The interactive Escala (name, "what fills your days", duration, 18 items in 3 parts with check-ins, optional open question) was stitched in front of Karla's 21-block result + offer page and is now **live on expectingwonders.com**. The free root reveal from the preview was left out, because Karla's brief (rule 41) keeps the Escala on "how much" and the paid Raiz on "why" (`decisions.md` 2026-09-25). Two rounds of Lucas's feedback went in: the context step became equal-sized stacked rows with real checkboxes, and Block 1 of the result was centered with no one-word last lines. A script now rebuilds the manual upload folder, and the Apps Script was updated to save the 3 new answers.
 
 ## Files changed
-- `src/App.jsx`, `src/index.css`, `scripts/Code.gs`: commit `09128d1` on `main`. The flow is now intro → name → context chips → duration → Part 1/2/3 (6 items each, with a check-in between parts) → optional open question → e-mail + WhatsApp (the name is not asked twice) → result. Under the score card, a portrait card shows her context and duration, the 3 strongest statements, and her open answer, plus the CVV 188 note when item 18 is Frequentemente or Sempre. The root question step, the "Sua raiz mais forte" block and the percentage bars from the preview were **not** brought over; they stay on the preview branch. The webhook is ON and sends `contexto`, `tempo`, `resposta_aberta` too.
-- `Code.gs` writes those 3 new fields after Q18, so no older column moves and the Zap (maps by name) is unaffected. **The live Apps Script is not updated.** Until someone pastes the new Code.gs and redeploys it, the 3 extra fields are silently dropped and everything else works as before. The existing sheet also needs the 3 header names typed into row 1 by hand (setupHeaders only runs on an empty sheet).
-- `upload-hostinger-2026-09-25/`: manual upload bundle + zip + LEIA-ME (gitignored).
-
-## Deploy path (answers "can we push from Git?")
-- It already exists: `.github/workflows/deploy.yml` builds and FTP-syncs `dist/` to `/public_html/` on every push to `main`. It has uploaded real changes before (07-07 run: 5 files changed). expectingwonders.com is Karla's quiz; it currently serves the 09-15 manual bundle (`index-Bwg3RYr_.js`).
-- Hostinger's own Git panel is the wrong tool here: it copies the repo as-is with no build step, so it would publish the Vite source, not the built site, and it needs an empty target folder.
-- `main` is 14 commits ahead of origin. **Nothing pushed.** `git push` = live in about 30 seconds.
+All committed and pushed to `origin/main` (public repo `mediasummitagency/karla-quiz-`):
+- `src/App.jsx`, `src/index.css`: the stitch (`09128d1`), checkbox rows (`16e9106`), Block 1 centering + widow fix (`9384fdd`). Under the score there's a portrait card: context and duration, the top 3 statements, her open answer, and the CVV 188 note when item 18 is ≥ Frequentemente. The lead form no longer asks for the name twice.
+- `scripts/build-upload.sh` (new): "rebuild the upload folder" recreates `upload-ready/to-upload/` + `to-upload.zip` (gitignored) with only the `public_html` files.
+- `scripts/Code.gs`: now matches the **live** sheet. G "Última ação realizada" and H "Observação" are Karla's manual columns, left blank; Q1–Q18 go in I–Z; Contexto/Tempo/Resposta aberta in AA–AC. `OWNER_EMAIL = ''` (owner lead email off; Lucas's call, since WhatsApp covers it) (`af9a040`, `4548c65`).
+- **Uncommitted, on purpose:** `_workspace/inputs/`, `_workspace/review/`. The repo is public and they hold Karla's brief and paid-product copy verbatim.
 
 ## Verified how
-- `npm run build` passes.
-- Playwright against `vite preview`, with the Google Script webhook intercepted (no real lead sent) and YouTube blocked. Leve at 390px, Crítica at 390px and Elevada at 1280px were driven from intro to result: zero page errors, 3 part breaks with the right counts, 2 lead inputs, name in headings, correct badge, 4 CTAs, no "teste" in the result, no horizontal scroll, CVV note only on Crítica. The payload carried nome, nivel, pontuacao, contexto, tempo, resposta_aberta and 18 answers.
-- **Not verified:** a real phone, the live Apps Script accepting the new fields, YouTube playback.
+- `npm run build` passes. Playwright ran against `vite preview` with the webhook intercepted, driving intro → result at Leve/Crítica (390px) and Elevada (1280px): no page errors, 3 part breaks, correct badge, 4 CTAs, no horizontal scroll, CVV note only when expected, payload carries the 3 new fields. The checkbox rows are all 342×60 / 480×60 and toggle correctly. The orphan-word scan is clean apart from one false positive (the raised ® sign).
+- Live: expectingwonders.com serves `index-DK0zEgl5.js` (the latest build, uploaded by hand by Lucas).
+- `Code.gs`: a mock `doPost` run put every value under the right column of the live layout (A–F, G/H blank, I–Z, AA–AC).
+- ⚠️ First Apps Script paste had the wrong column layout (the repo copy didn't know about G/H). Lucas rolled back to the previous deployment version before any lead arrived, then deployed the fixed script.
+- **Not verified:** a real lead landing in the sheet after the fixed deploy (Lucas hasn't reported a test yet), a real phone, YouTube playback.
 
-## Open
-- Karla has not explicitly signed off the combined version. Earlier open items still stand: GA4/Pixel/Clarity IDs, LGPD consent, testimonials, product shots, Kiwify Pix/3x, and renaming the intro/`<title>` to "Escala de Sobrecarga Emocional" (her rule 2 bans "teste"; the intro still says "DIAGNÓSTICO GRATUITO" and "Quero fazer o teste").
-- If Karla wants the root reveal back, it's on `preview/escala-interativa` (`4fcd51d`).
+## Open / not done
+- Lucas: one live test lead ("TESTE Lucas"), check G/H blank, I–Z aligned, AA–AC filled, then delete the row. The AC header reads "Resporta Aberta" (typo, cosmetic).
+- The result email the script sends to the quiz taker is unchanged; confirm Karla's old script sent it too.
+- Owed by Karla: sign-off on the combined version, GA4/Pixel/Clarity IDs (tracking is wired but off), LGPD consent call, real testimonials, product screenshots, Kiwify Pix/3x, and renaming the intro/`<title>` to "Escala de Sobrecarga Emocional" (her rule 2 bans "teste"; the intro still says "DIAGNÓSTICO GRATUITO" / "Quero fazer o teste").
+- The root reveal lives on `preview/escala-interativa` (`4fcd51d`) if Karla ever wants it.
+- **Confirmed: a push to `main` deploys to expectingwonders.com.** Today's Action runs uploaded 5 files each (~224 kB) ~20s after each push, and `/.ftp-deploy-sync-state.json` now returns 200 on the live domain (404 this morning). Lucas's manual uploads duplicated them. Decide with Lucas: rely on push, or keep uploading by hand (then the Action is redundant but harmless).
 
 ## Next session starts here
-Push `main` (or upload the 09-25 bundle), then run one real test on a phone and delete the test row from the sheet. Paste the new `scripts/Code.gs` into her Apps Script and redeploy.
-
-## Update — same day
-- Lucas uploaded `upload-ready/to-upload/` (from the new `scripts/build-upload.sh`) by hand; the live site serves `index-C14_UmUk.js`. `main` pushed to GitHub (`d15a204`), which also ran the FTP auto-deploy with the same build.
-- `_workspace/inputs/` and `_workspace/review/` deliberately not committed: the repo is public and they hold Karla's brief and paid-product copy.
-- Apps Script: the repo's `Code.gs` has a placeholder `OWNER_EMAIL`, so the live script was NOT replaced wholesale. Lucas got only the 3 new lines to paste under `row = row.concat(respostas);`, plus the instruction to redeploy as a new version of the existing deployment and add the 3 headers in Y1:AA1.
-- Changed plan: Lucas asked for the whole script on the clipboard. Her real owner email isn't recorded anywhere, and Lucas chose to turn the owner email off (`OWNER_EMAIL = ''`, `af9a040`) because the WhatsApp Zap already alerts Karla. The full `Code.gs` went to his clipboard.
-- ⚠️ First paste went wrong: Karla's live sheet has G "Última ação realizada" and H "Observação" (her manual follow-up), so Q1-Q18 are I-Z. The repo copy wrote answers from G. Caught from Lucas's screenshot before any lead arrived; Lucas rolled the deployment back to the previous version. `Code.gs` fixed (`G`/`H` left blank, new fields AA-AC) and a mock `doPost` run confirmed every value lands under its header. Lucas's AC header reads "Resporta Aberta" (typo, cosmetic).
-- Lucas's feedback, same day: context step restyled as equal stacked rows with real checkboxes (`16e9106`); Block 1 of the result centered and every text on the result page protected from one-word last lines (`9384fdd`). Both verified in Playwright at 390px and 1280px; the `upload-ready/to-upload/` folder was rebuilt after each for Lucas's manual upload.
+Ask Lucas whether the test lead landed correctly in Karla's sheet (columns I–Z and AA–AC), then send Karla the live link for sign-off along with the intro-rename question.
+**State as of 2026-09-25 14:29 EDT**

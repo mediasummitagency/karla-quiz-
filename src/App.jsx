@@ -623,20 +623,21 @@ export default function App() {
               <h2 className="question-text">O que mais ocupa os seus dias hoje?</h2>
               <p className="step-hint">Pode marcar mais de uma opção.</p>
             </div>
-            <div className="chip-grid">
+            <div className="check-list">
               {CONTEXT_OPTIONS.map((o) => {
                 const on = contextPicks.includes(o.key)
                 return (
                   <button
                     key={o.key}
                     type="button"
-                    className={`chip ${on ? 'selected' : ''}`}
-                    aria-pressed={on}
+                    role="checkbox"
+                    className={`check-option ${on ? 'selected' : ''}`}
+                    aria-checked={on}
                     onClick={() =>
                       setContextPicks((c) => (on ? c.filter((k) => k !== o.key) : [...c, o.key]))
                     }
                   >
-                    <span className="chip-check" aria-hidden="true">{on ? '✓' : '+'}</span>
+                    <span className="check-box" aria-hidden="true" />
                     {o.label}
                   </button>
                 )

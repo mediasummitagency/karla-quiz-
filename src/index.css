@@ -1897,50 +1897,75 @@ body {
   animation: none;
 }
 
-.chip-grid {
+/* "O que mais ocupa seus dias": lista empilhada, mesmas medidas dos cartões da escala,
+   com uma caixinha de seleção de verdade (várias escolhas). */
+.check-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
-  justify-content: center;
   width: 100%;
+  max-width: 480px;
+  margin: 32px 0 0;
 }
 
-.chip {
-  display: inline-flex;
+.check-option {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: 14px;
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 18px;
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 1rem;
   font-weight: 500;
+  text-align: left;
   color: var(--color-text-body);
   background: var(--color-bg-card);
-  border: 1px solid rgba(74, 107, 138, 0.2);
-  border-radius: 999px;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
   cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast),
+  transition: border-color var(--transition-fast), background var(--transition-fast),
     transform var(--transition-fast);
 }
 
-.chip:active {
-  transform: scale(0.96);
+.check-option:hover {
+  border-color: var(--color-primary-light);
 }
 
-.chip.selected {
+.check-option:active {
+  transform: scale(0.98);
+}
+
+.check-option.selected {
+  border-color: var(--color-primary);
+  background: linear-gradient(rgba(74, 107, 138, 0.08), rgba(74, 107, 138, 0.08)), var(--color-bg-card);
+  color: var(--color-text-primary);
+}
+
+.check-box {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid var(--color-primary-light);
+  background: var(--color-bg-card);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.check-option.selected .check-box {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
 }
 
-.chip-check {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  font-size: 12px;
-  border: 1px solid currentColor;
+.check-option.selected .check-box::after {
+  content: '';
+  width: 11px;
+  height: 6px;
+  border-left: 2.2px solid #fff;
+  border-bottom: 2.2px solid #fff;
+  transform: rotate(-45deg) translate(1px, -1px);
 }
 
 .chapter-break {

@@ -7,7 +7,7 @@
  */
 
 // ============ CONFIGURATION ============
-var OWNER_EMAIL = 'karla@example.com'; // <-- Update with Karla's real email address
+var OWNER_EMAIL = ''; // Off since 2026-09-25: Karla gets new leads by WhatsApp (Zapier). Put an address here to turn the email back on.
 
 var QUESTIONS = [
   'Eu acordo já me sentindo cansada, mesmo após uma noite de sono.',

@@ -52,7 +52,7 @@ true, so piggy-backing `offer_viewed` tracking on it skipped anyone who scrolls 
 3 min of video. | TRIGGER: Playwright showed no event fired on scroll. | FIX: Gave
 `offer_viewed` its own observer keyed only on `screen === 'result'`.
 
-[2026-09-25] LESSON: This repo already deploys itself: a push to `main` runs a GitHub Action that builds and FTP-syncs `dist/` to Karla's `public_html`. | TRIGGER: Lucas assumed nothing deployed from Git and opened Hostinger's Git panel. | FIX: Push `main` to deploy, and use the manual bundle only as a fallback.
+[2026-09-25] LESSON: This repo already deploys itself: a push to `main` runs a GitHub Action that builds and FTP-syncs `dist/` to `public_html`; never also connect Hostinger's Git panel, which copies raw source and blanks the site. | TRIGGER: 09-25 Lucas opened Hostinger's Git panel; 10-11 he connected it and the live page went white. | FIX: Push `main` to deploy; keep Hostinger Git disconnected; re-run the Action to restore.
 
 [2026-09-25] LESSON: "Rebuild the upload folder" means run `./scripts/build-upload.sh`, which recreates `upload-ready/to-upload/` and `to-upload.zip` with only the built site for `public_html`. | TRIGGER: Lucas uploads to Hostinger by hand and wanted one repeatable command. | FIX: Run the script, then upload the folder's contents into an emptied `public_html`.
 

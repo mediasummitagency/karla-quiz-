@@ -18,6 +18,13 @@ npm run dev
 
 Acesse http://localhost:5173
 
+## Deploy (leia antes de mexer no Hostinger)
+
+**Um push para `main` já publica o site sozinho**: `.github/workflows/deploy.yml` faz o build e
+envia só a pasta `dist/` por FTP para o `public_html`. **Não conecte o Git do painel da
+Hostinger**: ele copia o código-fonte cru para o site e a página fica em branco (aconteceu em
+2026-10-11). Se o site ficar branco, rode de novo a última execução da Action no GitHub.
+
 ## Build para produção
 
 ```bash

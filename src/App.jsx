@@ -118,6 +118,20 @@ const CHAPTER_TITLES = ['Seu dia a dia', 'Suas cobranças', 'Você por dentro']
 const STEP_SCREENS = ['name', 'context', 'duration', 'quiz', 'break', 'open']
 const TOTAL_STEPS = 22
 
+// Nome de cada tela no funil do GA4, com o número na frente para a lista ficar em ordem:
+// 01_name … 04_part1_intro, 05_q01 … 10_q06, 11_part2_intro, 12_q07 … 24_q18, 25_open_question,
+// 26_lead_form, 27_result. A intro não entra: ela é o page_view.
+function funnelStep(screen, q) {
+  const pad = (n) => String(n).padStart(2, '0')
+  const part = Math.floor(q / CHAPTER_SIZE)
+  const fixed = { name: 1, context: 2, duration: 3, open: 25, lead: 26, result: 27 }
+  const names = { open: 'open_question', lead: 'lead_form' }
+  if (fixed[screen]) return `${pad(fixed[screen])}_${names[screen] || screen}`
+  if (screen === 'break') return `${pad(4 + part * 7)}_part${part + 1}_intro`
+  if (screen === 'quiz') return `${pad(5 + part * 7 + (q % CHAPTER_SIZE))}_q${pad(q + 1)}`
+  return null
+}
+
 // A raiz NÃO é revelada de graça (decisão 2026-09-25): a Escala responde "o quanto", o Raiz pago
 // responde "o que pode estar alimentando" (regra 41 do comando da Karla). O preview que revelava a
 // raiz ficou no branch preview/escala-interativa.
@@ -352,6 +366,16 @@ export default function App() {
   useEffect(() => {
     initTracking()
   }, [])
+
+  // Funil: um quiz_step por tela alcançada, para ver em qual delas as pessoas desistem. Só diz
+  // QUAL tela ela viu, nunca o que respondeu (regra de dado de saúde em tracking.js).
+  const lastStepRef = useRef(null)
+  useEffect(() => {
+    const step = funnelStep(screen, currentQuestion)
+    if (!step || step === lastStepRef.current) return
+    lastStepRef.current = step
+    track('quiz_step', { step, step_number: Number(step.slice(0, 2)) })
+  }, [screen, currentQuestion])
 
   useEffect(() => {
     if (screen === 'result' || screen === 'intro') setPhotoError(false)

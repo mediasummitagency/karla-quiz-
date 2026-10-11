@@ -23,24 +23,38 @@ doc, Version B is our CRO take) are in
 
 ## 1. Set up Meta Pixel, Microsoft Clarity and GA4
 
-**Status:** code wired 2026-09-24, switched off until real IDs exist · **Added:** 2026-09-15 ·
-**Blocks:** every CRO change below
+**Status:** **GA4 LIVE via GTM 2026-10-11.** Meta Pixel and Clarity still off (no IDs) ·
+**Added:** 2026-09-15
 
-`GA4_ID` / `META_PIXEL_ID` / `CLARITY_ID` in `src/tracking.js` are all `''` — each tool only
-loads once its ID is filled in, so nothing fires and no network request goes out yet. `track()`
-fans `quiz_start`, `quiz_complete`, `lead_submit` (Meta `Lead`), `offer_viewed` (fires once,
-independent of the sticky-bar video gate), and `checkout_click` (Meta `InitiateCheckout`, param
-`button: 'bridge'|'sticky'`) out to whichever tools are loaded. Verified end-to-end with test IDs
-in a headless browser (Apps Script route-blocked first) — event order and Meta standard-event
-mapping both confirmed; confirmed zero requests with IDs empty (see commit for details).
+Created 2026-10-11 under Lucas's **own** Summit Media logins, deliberately not G360 (a solo
+project for his sister; G360/Daniel should not see it). Only lucas@summitmedia.co has access.
+
+| | ID | Where |
+|---|---|---|
+| GTM container | `GTM-524JZKF7` (version 2 published) | Tag Manager → Summit Media account |
+| GA4 property | `558470602`, measurement ID `G-NS9PT60FWG` | Analytics → Summit Media Analytics account (384187979) |
+
+GA4 settings: São Paulo time, BRL, Health category, event retention 14 months. Custom
+dimensions registered: **Quiz step** (`step`) and **Checkout button** (`button`).
+
+Events (all through one GA4 event tag in GTM): `quiz_start`, **`quiz_step`** (new: one per screen,
+`step` = `01_name` … `27_result`, never an answer), `quiz_complete`, `lead_submit`,
+`offer_viewed`, `checkout_click` (`button`). Verified locally: GTM + G-NS9PT60FWG boot, steps
+01–12 in order, hits reach `google-analytics.com/g/collect`.
 
 **Still needed:**
-- [ ] The three real IDs (GA4 property, Meta Pixel, Clarity project — Karla's own, not Summit's)
+- [ ] **Mark `lead_submit` as a key event** in GA4 (Admin → Events → star it). GA4 only lists an
+      event after it has arrived once, so do it after the first real or test lead.
+- [ ] Build the drop-off report: Explore → Funnel exploration, steps = `quiz_step` filtered by
+      Quiz step 01 … 27 (or a free-form table of Quiz step × event count)
+- [ ] Meta Pixel + Clarity IDs (Karla's own). Can now go in as GTM tags instead of code
 - [ ] Once IDs are in, confirm the Kiwify side: does its own pixel/checkout page pick up the
       `utm_source`/`utm_medium`/`utm_content` now appended to `CHECKOUT_URL`, or does Kiwify need
       its own pixel configured separately for the purchase event to attribute back
 - [ ] LGPD consent decision (see Watch out, below) — `trackingAllowed()` in `src/tracking.js`
       returns `true` unconditionally right now and is the single gate to change later
+
+### History (before 2026-10-11)
 
 Right now the quiz has **no tracking of any kind** — no GA4, no Meta Pixel, no Clarity.
 Confirmed 2026-09-15 by grepping both `src/` and the built bundle; the only Facebook strings

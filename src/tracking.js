@@ -1,7 +1,12 @@
 // ============ TRACKING CONFIGURATION ============
 // Empty string = that tool never loads: no script tag, no network request, no console errors.
-// Fill these in once the accounts exist (GA4 property, Meta Pixel, Clarity project).
-export const GA4_ID = ''
+//
+// GA4 runs INSIDE the GTM container, not from here. Created 2026-10-11 under Lucas's own
+// Summit Media accounts (not G360, which other people can see):
+//   GTM container  GTM-524JZKF7 (Summit Media account)
+//   GA4 property   558470602, measurement ID G-NS9PT60FWG (Summit Media Analytics account)
+// The container's GA4 event tag forwards every event that track() pushes below.
+export const GTM_ID = 'GTM-524JZKF7'
 export const META_PIXEL_ID = ''
 export const CLARITY_ID = ''
 
@@ -21,25 +26,36 @@ export function initTracking() {
   initialized = true
   if (!trackingAllowed()) return
 
-  if (GA4_ID) loadGA4(GA4_ID)
+  if (GTM_ID) loadGTM(GTM_ID)
   if (META_PIXEL_ID) loadMetaPixel(META_PIXEL_ID)
   if (CLARITY_ID) loadClarity(CLARITY_ID)
 }
 
-function loadGA4(id) {
+// The canonical Summit GTM loader (same as tcg-nextjs/src/components/analytics/GtmLoader.tsx):
+// loads on the first gesture, or 1s AFTER THE FIRST PAINTED FRAME, whichever comes first. Never
+// flatten the fallback to a plain setTimeout from navigation start; that exact change cost TCG and
+// G360 20-30 PageSpeed points. See divisions/software/plan-2026-08-31-gtm-standardization.md.
+// Events pushed before GTM boots wait in window.dataLayer and are replayed in order.
+function loadGTM(id) {
   window.dataLayer = window.dataLayer || []
-  function gtag() {
-    // eslint-disable-next-line prefer-rest-params
-    window.dataLayer.push(arguments)
+  let loaded = false
+  const evts = ['scroll', 'pointerdown', 'keydown', 'touchstart', 'mousemove']
+  function load() {
+    if (loaded) return
+    loaded = true
+    evts.forEach((e) => window.removeEventListener(e, load))
+    window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' })
+    const script = document.createElement('script')
+    script.async = true
+    script.src = `https://www.googletagmanager.com/gtm.js?id=${id}`
+    document.head.appendChild(script)
   }
-  window.gtag = gtag
-  gtag('js', new Date())
-  gtag('config', id)
-
-  const script = document.createElement('script')
-  script.async = true
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`
-  document.head.appendChild(script)
+  evts.forEach((e) => window.addEventListener(e, load, { once: true, passive: true }))
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      window.setTimeout(load, 1000)
+    })
+  })
 }
 
 function loadMetaPixel(id) {
@@ -95,11 +111,19 @@ const META_STANDARD_EVENTS = {
 // HEALTH DATA — HARD RULE: params must never contain quiz answers, score, result level, name,
 // email or WhatsApp. This is a mental-health quiz (LGPD-sensitive). Only pass small, non-
 // identifying params like which button was clicked.
+//
+// Every param key any event uses is listed here and reset to undefined on each push. GTM's data
+// layer is a running merge, so without the reset a `step` from quiz_step would ride along on the
+// next checkout_click. Add new keys here AND as a Data Layer Variable in the GTM container.
+const PARAM_KEYS = ['step', 'step_number', 'button']
+
 export function track(event, params = {}) {
   if (!trackingAllowed()) return
 
-  if (GA4_ID && typeof window.gtag === 'function') {
-    window.gtag('event', event, params)
+  if (GTM_ID) {
+    window.dataLayer = window.dataLayer || []
+    const reset = Object.fromEntries(PARAM_KEYS.map((k) => [k, undefined]))
+    window.dataLayer.push({ ...reset, ...params, event })
   }
 
   if (META_PIXEL_ID && typeof window.fbq === 'function') {

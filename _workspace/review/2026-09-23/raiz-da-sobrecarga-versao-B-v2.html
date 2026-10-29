@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Raiz da Sobrecarga · Versão B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --primary: #4A6B8A;
+  --primary-dark: #3A5570;
+  --primary-light: #7A9BB5;
+  --navy: #22384D;
+  --accent: #D4B896;
+  --accent-deep: #B8966C;
+  --accent-soft: #EFE3D3;
+  --bg: #F4EFE9;
+  --bg-alt: #EDE6DD;
+  --card: #FDFAF7;
+  --ink: #2C3E50;
+  --body: #3D4F5C;
+  --muted: #7C8D9A;
+  --line: #E1D6CA;
+  --cta: #3A5570;
+  --cta-hover: #2C4459;
+  --ok: #5B8A6E;
+  --display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--body);
+  font-family: var(--sans); font-size: 16px; line-height: 1.65;
+  padding-block: 0 96px;
+}
+h1, h2, h3 { color: var(--ink); text-wrap: balance; margin: 0; }
+p { margin: 0; }
+strong { color: var(--ink); font-weight: 700; }
+:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 3px; border-radius: 6px; }
+
+/* Full-bleed bands with a centred inner column; the gutter lives on the band. */
+.band { padding-inline: 16px; }
+.band.alt { background: var(--bg-alt); }
+.band.dark { background: var(--navy); color: #D5DEE7; }
+.band.dark h2, .band.dark strong { color: #FDFAF7; }
+.inner { max-width: 1080px; margin: 0 auto; padding-block: 48px; display: grid; gap: 22px; }
+@media (min-width: 900px) { .inner { padding-block: 80px; gap: 28px; } }
+
+.split { display: grid; gap: 28px; }
+@media (min-width: 900px) {
+  .split { grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: center; }
+  .split.top { align-items: start; }
+  .split.rev > :first-child { order: 2; }
+}
+
+/* ---------- Type scale ---------- */
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--primary); }
+.band.dark .eyebrow { color: var(--accent); }
+.h-hero { font-family: var(--display); font-weight: 600; font-size: clamp(36px, 8.6vw, 64px); line-height: 1.04; letter-spacing: -.01em; }
+.h-sec { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 6.8vw, 46px); line-height: 1.08; letter-spacing: -.005em; }
+.h-sub { font-family: var(--display); font-weight: 600; font-size: clamp(24px, 5vw, 30px); line-height: 1.15; }
+.lead { font-size: clamp(17px, 2.2vw, 20px); line-height: 1.6; }
+.big-line { font-family: var(--display); font-weight: 600; font-size: clamp(26px, 5.6vw, 38px); line-height: 1.15; color: var(--ink); text-wrap: balance; }
+.quote-xl { font-family: var(--display); font-style: italic; font-weight: 500; font-size: clamp(26px, 5.4vw, 40px); line-height: 1.2; color: var(--primary-dark); text-wrap: balance; }
+mark { background: linear-gradient(transparent 58%, var(--accent-soft) 58%); color: inherit; padding: 0 .08em; }
+.band.dark mark { background: linear-gradient(transparent 60%, rgba(212,184,150,.35) 60%); }
+.measure { max-width: 60ch; }
+.stack-y { display: grid; gap: 16px; }
+
+/* ---------- Preview bar ---------- */
+.previewbar { max-width: 1080px; margin: 16px auto 0; background: var(--ink); color: #F4EFE9; border-radius: 14px; padding: 12px 14px; display: grid; gap: 10px; font-size: 13px; }
+.previewbar-wrap { padding-inline: 16px; }
+.previewbar-title { font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; color: var(--accent); }
+.previewbar p { color: #D9E1E8; line-height: 1.45; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { border: 1px solid #5C7186; background: transparent; color: #F4EFE9; border-radius: 999px; padding: 6px 12px; font-size: 13px; cursor: pointer; font-family: inherit; }
+.seg button[aria-pressed="true"] { background: #F4EFE9; color: var(--ink); border-color: #F4EFE9; font-weight: 600; }
+
+/* ---------- 1. Result ---------- */
+.result-head { font-family: var(--display); font-weight: 600; font-size: clamp(32px, 7vw, 48px); line-height: 1.08; }
+.scoreline { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.arc { position: relative; width: 180px; flex: none; }
+.arc svg { display: block; width: 180px; height: auto; }
+.arc-fill { transition: stroke-dashoffset .8s ease; }
+.arc-center { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; }
+.arc-num { font-family: var(--display); font-size: 46px; font-weight: 700; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.arc-scale { display: block; font-size: 12px; color: var(--muted); }
+.level-name { font-family: var(--display); font-size: 28px; font-weight: 600; color: var(--ink); line-height: 1.1; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 6px; }
+.lv-leve { background: #E3EEE6; color: #3F6B50; }
+.lv-alerta { background: #F6EBD6; color: #8A6420; }
+.lv-elevada { background: #F5E0D6; color: #9A4B2E; }
+.lv-critica { background: #F1D9DD; color: #8E2F42; }
+.devolutiva { display: grid; gap: 12px; font-size: 17px; }
+.devolutiva p:first-child { font-size: 19px; color: var(--ink); }
+.video-col { display: grid; gap: 14px; justify-items: center; }
+.video {
+  aspect-ratio: 9 / 16; width: 100%; max-width: 330px; border-radius: 18px; overflow: hidden;
+  background: linear-gradient(165deg, #4A6B8A, #22384D); color: #F4EFE9;
+  display: grid; place-items: center; text-align: center; padding: 24px;
+  box-shadow: 0 18px 44px rgba(34,56,77,.22);
+}
+.play { width: 64px; height: 64px; border-radius: 50%; background: rgba(253,250,247,.94); display: grid; place-items: center; margin: 0 auto 14px; }
+.play::before { content: ""; border-left: 20px solid var(--ink); border-top: 12px solid transparent; border-bottom: 12px solid transparent; margin-left: 5px; }
+.video-title { font-family: var(--display); font-size: 21px; line-height: 1.25; }
+.video small { display: block; font-size: 12px; opacity: .8; margin-top: 8px; }
+.sig { display: flex; align-items: center; gap: 12px; }
+.sig img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+.sig b { display: block; color: var(--ink); font-size: 15px; }
+.sig span { font-size: 12px; color: var(--muted); }
+
+/* ---------- 2. Bridge ---------- */
+.level-card { background: rgba(253,250,247,.06); border: 1px solid rgba(212,184,150,.4); border-radius: 18px; padding: 22px; display: grid; gap: 10px; }
+.level-card .k { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.level-card p { font-size: 18px; line-height: 1.55; }
+
+/* ---------- 3. Identification ---------- */
+.checklist { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 8px 0; box-shadow: 0 10px 30px rgba(44,62,80,.06); }
+.checklist-k { padding: 12px 20px 8px; font-size: 13px; font-weight: 700; color: var(--ink); }
+.checklist ul { list-style: none; margin: 0; padding: 0; }
+.checklist li { display: grid; grid-template-columns: 22px 1fr; gap: 12px; padding: 12px 20px; border-top: 1px solid var(--line); font-size: 16px; }
+.checklist li::before { content: ""; width: 18px; height: 18px; margin-top: 3px; border-radius: 5px; border: 1.8px solid var(--accent-deep); }
+
+/* ---------- 4. Belief + cycle ---------- */
+.rules { display: grid; gap: 14px; }
+.rule { font-family: var(--display); font-style: italic; font-size: clamp(22px, 4.6vw, 28px); color: var(--ink); line-height: 1.2; padding-left: 18px; border-left: 3px solid var(--accent); }
+.cycle { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 22px 16px 14px; }
+.cycle svg { display: block; width: 100%; max-width: 380px; height: auto; margin: 0 auto; }
+.cycle text { font-family: var(--sans); font-size: 13px; font-weight: 600; fill: var(--ink); }
+.cycle .node { fill: var(--bg); stroke: var(--primary-light); stroke-width: 1.5; }
+.cycle .node-hot { fill: var(--accent-soft); stroke: var(--accent-deep); }
+.cycle .arrow { stroke: var(--primary-light); stroke-width: 1.5; fill: none; }
+.cycle .ahead { fill: var(--primary-light); }
+.cycle-cap { text-align: center; font-size: 14px; color: var(--muted); margin-top: 8px; }
+
+/* ---------- 5. Roots ---------- */
+.roots { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.root { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; display: grid; gap: 6px; align-content: start; }
+.root-name { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--primary); }
+.root-quote { font-family: var(--display); font-style: italic; font-size: 23px; line-height: 1.22; color: var(--ink); }
+.root-last { background: var(--navy); border-color: var(--navy); }
+.root-last p { color: #D5DEE7; font-size: 16px; line-height: 1.5; }
+.root-last strong { color: #FDFAF7; }
+
+/* ---------- 6. Method ---------- */
+.steps { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 900px) { .steps { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.step { background: rgba(253,250,247,.06); border: 1px solid rgba(212,184,150,.35); border-radius: 16px; padding: 18px; display: grid; gap: 6px; align-content: start; }
+.step-n { font-family: var(--display); font-size: 40px; font-weight: 700; color: var(--accent); line-height: 1; }
+.step-k { font-size: 12px; font-weight: 700; letter-spacing: .14em; color: #FDFAF7; }
+.step p { font-size: 15px; line-height: 1.45; }
+
+/* ---------- 7. Offer ---------- */
+.deliver { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.deliver li { display: grid; grid-template-columns: 26px 1fr; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.deliver li:first-child { border-top: 1px solid var(--line); }
+.deliver li::before, .fit li::before {
+  content: ""; width: 22px; height: 22px; margin-top: 2px; border-radius: 50%;
+  background: var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/100% no-repeat;
+}
+.deliver b { display: block; color: var(--ink); font-size: 17px; }
+.deliver span span { font-size: 15px; }
+.pricecard { background: var(--card); border: 2px solid var(--primary); border-radius: 22px; padding: 26px 22px; display: grid; gap: 16px; box-shadow: 0 16px 44px rgba(44,62,80,.12); }
+.pricecard-name { font-family: var(--display); font-size: 30px; font-weight: 700; text-align: center; color: var(--ink); line-height: 1.1; }
+.price { text-align: center; display: grid; gap: 2px; }
+.price-main { font-family: var(--display); font-size: 64px; font-weight: 700; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.price-main small { font-size: 26px; vertical-align: top; margin-right: 2px; }
+.price-sub { font-size: 14px; color: var(--muted); }
+.cta {
+  display: block; width: 100%; text-align: center; text-decoration: none; cursor: pointer; border: 0;
+  background: var(--cta); color: #FDFAF7; font-family: inherit;
+  padding: 18px 20px; border-radius: 14px; font-size: 17px; font-weight: 700;
+  box-shadow: 0 10px 26px rgba(58,85,112,.28); transition: background .2s ease, transform .2s ease;
+}
+.cta:hover { background: var(--cta-hover); transform: translateY(-1px); }
+.cta-micro { text-align: center; font-size: 13px; color: var(--muted); margin-top: -6px; }
+.guarantee { display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: center; background: var(--bg); border-radius: 14px; padding: 14px; font-size: 14px; line-height: 1.5; }
+
+/* ---------- 8. Authority ---------- */
+.author-photo { width: 100%; max-width: 320px; aspect-ratio: 1; border-radius: 24px; object-fit: cover; box-shadow: 14px 14px 0 var(--accent-soft); justify-self: center; }
+.cred { font-size: 14px; color: var(--muted); }
+.fit { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.fit li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; font-size: 16px; }
+.not { font-size: 14px; color: var(--muted); }
+
+/* ---------- 9. FAQ ---------- */
+.faq { display: grid; gap: 10px; }
+.faq details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.faq summary { cursor: pointer; padding: 16px 48px 16px 18px; font-weight: 600; color: var(--ink); list-style: none; position: relative; font-size: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 18px; top: 11px; font-size: 24px; color: var(--primary); }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { padding: 0 18px 16px; font-size: 15px; }
+
+/* ---------- 10. Close ---------- */
+.close { max-width: 720px; margin: 0 auto; text-align: center; display: grid; gap: 22px; justify-items: center; }
+.close .cta { max-width: 420px; }
+.ps { font-family: var(--display); font-style: italic; font-size: 21px; color: var(--primary-dark); }
+.care { font-size: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; text-align: left; }
+.care a { color: var(--primary-dark); font-weight: 600; }
+.disclaimer { font-size: 12px; color: var(--muted); }
+
+
+/* ---------- Testimonials (placeholders) ---------- */
+.proof-stat { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.proof-stat b { font-family: var(--display); font-size: clamp(44px, 9vw, 64px); font-weight: 700; color: var(--ink); line-height: 1; }
+.tgrid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.tcard { background: var(--card); border: 1.5px dashed var(--accent-deep); border-radius: 18px; padding: 20px; display: grid; gap: 12px; align-content: start; }
+.tcard .stars { color: var(--accent-deep); letter-spacing: 2px; font-size: 15px; }
+.tcard .ph { font-family: var(--display); font-style: italic; font-size: 20px; line-height: 1.3; color: var(--muted); }
+.tcard .who { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+.tcard .av { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); flex: none; }
+.phnote { font-size: 13px; color: var(--muted); }
+
+/* ---------- Sticky ---------- */
+.sticky {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+  padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(253,250,247,.97); border-top: 1px solid var(--line); box-shadow: 0 -6px 24px rgba(44,62,80,.08);
+  transform: translateY(110%); transition: transform .3s ease;
+}
+.sticky.show { transform: none; }
+.sticky-in { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.sticky-txt { flex: 1; min-width: 0; font-size: 13px; line-height: 1.3; }
+.sticky-txt b { display: block; color: var(--ink); font-size: 15px; }
+.sticky .cta { width: auto; padding: 12px 18px; font-size: 14px; box-shadow: none; white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
+
+/* ================= Version B overrides ================= */
+:root { --cta: #B8966C; --cta-hover: #A6845B; }
+.cta { display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 10px 26px rgba(184,150,108,.38); color: #fff; }
+.cta .arr { font-size: 20px; line-height: 1; }
+.trust { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 16px; font-size: 13px; color: var(--muted); }
+.band.dark .trust { color: #AFC0CF; }
+.trust span { display: inline-flex; align-items: center; gap: 6px; }
+.trust svg { width: 14px; height: 14px; flex: none; }
+
+/* Two-part result card */
+.result { background: var(--card); border: 1px solid var(--line); border-radius: 22px; overflow: hidden; box-shadow: 0 12px 34px rgba(44,62,80,.08); }
+.part { padding: 20px; display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; }
+.part + .part { border-top: 1px dashed var(--line); }
+.part-k { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.part-title { font-family: var(--display); font-size: 28px; font-weight: 600; color: var(--ink); line-height: 1.12; margin-top: 2px; }
+.part-sub { font-size: 14px; margin-top: 6px; }
+.gauge { position: relative; width: 116px; }
+.gauge svg { display: block; width: 116px; height: 66px; }
+.gauge-num { position: absolute; left: 0; right: 0; bottom: -2px; text-align: center; font-family: var(--display); font-size: 34px; font-weight: 700; color: var(--ink); line-height: 1; font-variant-numeric: tabular-nums; }
+.gauge-num small { font-family: var(--sans); font-size: 11px; color: var(--muted); font-weight: 500; }
+#gauge-fill { transition: stroke-dashoffset .8s ease; }
+.part-locked { background: repeating-linear-gradient(135deg, var(--card) 0 10px, #F7F1EA 10px 20px); }
+.lock { width: 56px; height: 56px; border-radius: 50%; background: var(--navy); display: grid; place-items: center; }
+.lock svg { width: 24px; height: 24px; }
+.blurred { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.blurred span { font-size: 12px; padding: 3px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-deep); filter: blur(3.2px); user-select: none; }
+.hello { font-family: var(--display); font-size: clamp(32px, 7vw, 48px); font-weight: 600; line-height: 1.08; }
+.hello small { display: block; font-family: var(--sans); font-size: 15px; font-weight: 500; color: var(--muted); margin-top: 8px; letter-spacing: 0; }
+
+/* Tap-to-recognize */
+.picker { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.chip {
+  display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start; text-align: left;
+  width: 100%; background: var(--card); border: 1.5px solid var(--line); border-radius: 16px;
+  padding: 16px 18px; cursor: pointer; font-family: inherit; color: var(--body); transition: border-color .2s ease, background .2s ease;
+}
+.chip:hover { border-color: var(--primary-light); }
+.chip .box { width: 24px; height: 24px; border-radius: 7px; border: 1.5px solid var(--primary-light); margin-top: 3px; display: grid; place-items: center; }
+.chip .q { font-family: var(--display); font-style: italic; font-size: 22px; color: var(--ink); line-height: 1.22; display: block; }
+.chip .n { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: block; margin-top: 6px; }
+.chip[aria-pressed="true"] { border-color: var(--accent-deep); background: #FBF4EA; }
+.chip[aria-pressed="true"] .box { background: var(--accent-deep); border-color: var(--accent-deep); }
+.chip[aria-pressed="true"] .box::after { content: ""; width: 11px; height: 6px; border-left: 2.4px solid #fff; border-bottom: 2.4px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+.tally { background: var(--navy); color: #D5DEE7; border-radius: 16px; padding: 18px 20px; font-size: 16px; }
+.tally strong { color: #FDFAF7; }
+
+/* Guide preview + phone placeholders */
+.doc {
+  background: #FFFDFB; border: 1px solid var(--line); border-radius: 6px 18px 18px 6px;
+  box-shadow: 12px 12px 0 var(--accent-soft), 0 14px 34px rgba(44,62,80,.10);
+  padding: 24px 22px 18px 30px; position: relative; display: grid; gap: 14px;
+}
+.doc::before { content: ""; position: absolute; left: 12px; top: 18px; bottom: 18px; width: 2px; background: var(--accent); border-radius: 2px; }
+.doc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.doc-title { font-family: var(--display); font-size: 26px; font-weight: 700; color: var(--ink); }
+.doc-for { font-size: 12px; color: var(--muted); text-align: right; }
+.toc { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.toc li { display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: start; }
+.toc .num { font-family: var(--display); font-size: 30px; font-weight: 700; color: var(--accent-deep); line-height: 1; }
+.toc b { display: block; font-size: 12px; letter-spacing: .14em; color: var(--primary); }
+.toc p { font-size: 15px; color: var(--ink); line-height: 1.4; }
+.doc-foot { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+.phones { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.phone { aspect-ratio: 9 / 18; border-radius: 22px; border: 6px solid var(--ink); background: var(--card); display: grid; place-items: center; text-align: center; padding: 10px; }
+.phone span { font-size: 12px; line-height: 1.35; color: var(--muted); }
+.phone b { display: block; font-family: var(--display); font-size: 17px; color: var(--ink); margin-bottom: 4px; }
+
+/* Two choices */
+.choices { display: grid; gap: 14px; }
+@media (min-width: 760px) { .choices { grid-template-columns: 1fr 1fr; } }
+.choice { border-radius: 20px; padding: 24px; display: grid; gap: 12px; align-content: start; }
+.choice-a { background: var(--card); border: 1px solid var(--line); }
+.choice-b { background: var(--navy); color: #D5DEE7; }
+.choice-b h3, .choice-b strong { color: #FDFAF7; }
+.choice h3 { font-family: var(--display); font-size: 26px; font-weight: 600; line-height: 1.15; }
+.choice-k { font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.choice-b .choice-k { color: var(--accent); }
+.choice ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 15px; }
+.choice-a li::before { content: "✕"; color: #A0616B; font-weight: 700; margin-right: 10px; }
+.choice-b li::before { content: "✓"; color: var(--accent); font-weight: 700; margin-right: 10px; }
+
+.offer-tag { justify-self: center; background: var(--navy); color: #FDFAF7; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 5px 12px; border-radius: 999px; }
+.pricecard { border-color: var(--accent-deep); }
+.sticky { background: rgba(34,56,77,.97); border-top: 0; color: #DCE4EC; }
+.sticky-txt b { color: #FDFAF7; }
+.proof-sheet { border-radius: 18px; border: 1.5px dashed var(--accent-deep); background: repeating-linear-gradient(0deg, var(--card) 0 22px, #F3ECE3 22px 23px); min-height: 150px; display: grid; place-items: center; text-align: center; padding: 16px; color: var(--muted); font-size: 13px; }
+.notlist li::before { background: #C9B2B7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M6.5 6.5l7 7M13.5 6.5l-7 7' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") center/100% no-repeat !important; }
+</style>
+</head>
+<body>
+
+<div class="previewbar-wrap">
+  <div class="previewbar" role="region" aria-label="Controles da prévia">
+    <span class="previewbar-title">Prévia · Versão B</span>
+    <p>Esta é uma prévia da página de resultado com a página de vendas integrada. Toque nos botões abaixo para ver como a página muda para cada nível do teste. Os campos entre [colchetes] são espaços reservados para conteúdo real. Os botões de compra levam ao checkout da Kiwify no site real.</p>
+    <div class="seg" role="group" aria-label="Nível do resultado">
+      <button type="button" data-level="0" aria-pressed="false">Leve · 14</button>
+      <button type="button" data-level="1" aria-pressed="false">Alerta · 29</button>
+      <button type="button" data-level="2" aria-pressed="true">Elevada · 44</button>
+      <button type="button" data-level="3" aria-pressed="false">Crítica · 61</button>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- 1. RESULTADO EM DUAS PARTES -->
+  <div class="band">
+    <div class="inner split">
+      <div class="stack-y">
+        <h1 class="hello">Ana, seu resultado tem duas partes.<small>Você acabou de liberar a primeira.</small></h1>
+        <div class="result">
+          <div class="part">
+            <div>
+              <span class="part-k">Parte 1 · O quanto você carrega</span>
+              <div class="part-title" id="level-name">Sobrecarga Elevada</div>
+              <span class="badge lv-elevada" id="badge" style="margin-top: 8px">Elevada</span>
+            </div>
+            <div class="gauge" aria-label="Pontuação">
+              <svg viewBox="0 0 116 66" aria-hidden="true">
+                <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7A9BB5"/><stop offset="1" stop-color="#22384D"/></linearGradient></defs>
+                <path d="M 8 60 A 50 50 0 0 1 108 60" fill="none" stroke="#E6DDD3" stroke-width="9" stroke-linecap="round"/>
+                <path id="gauge-fill" d="M 8 60 A 50 50 0 0 1 108 60" fill="none" stroke="url(#g)" stroke-width="9" stroke-linecap="round" stroke-dasharray="157.08" stroke-dashoffset="61"/>
+              </svg>
+              <div class="gauge-num"><span id="score">44</span><small>/72</small></div>
+            </div>
+          </div>
+          <div class="part part-locked">
+            <div>
+              <span class="part-k">Parte 2 · Por que você carrega</span>
+              <div class="part-title">Sua raiz</div>
+              <div class="blurred" aria-hidden="true"><span>A que dá conta</span><span>A que precisa provar</span><span>A que fica por último</span></div>
+              <p class="part-sub">Ainda bloqueada. <strong>Continue lendo.</strong></p>
+            </div>
+            <div class="lock" aria-label="Bloqueado"><svg viewBox="0 0 24 24" fill="none" stroke="#D4B896" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>
+          </div>
+        </div>
+        <div class="devolutiva measure" id="devolutiva"></div>
+      </div>
+      <div class="video-col">
+        <div class="video" role="img" aria-label="Espaço do vídeo do resultado">
+          <div>
+            <div class="play" aria-hidden="true"></div>
+            <div class="video-title" id="video-title"></div>
+            <small>O vídeo do YouTube entra aqui no site real</small>
+          </div>
+        </div>
+        <div class="sig">
+          <img src="data:image/jpeg;base64,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" alt="Karla Arantes" width="48" height="48">
+          <div><b>Karla Arantes</b><span>Psicóloga Clínica · CRP 04/71970</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. O QUE O RESULTADO NÃO MOSTRA -->
+  <div class="band dark">
+    <div class="inner split">
+      <div class="stack-y">
+        <span class="eyebrow">A parte 2 do seu resultado</span>
+        <h2 class="h-hero">O cansaço que o fim de semana não resolve <mark>tem uma raiz</mark>. E quase nunca é a sua agenda.</h2>
+      </div>
+      <div class="level-card">
+        <span class="k" id="level-k">Seu nível: Sobrecarga Elevada · 44 de 72</span>
+        <p id="level-bridge"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. IDENTIFICAÇÃO -->
+  <div class="band">
+    <div class="inner split top">
+      <div class="stack-y">
+        <span class="eyebrow">Talvez isso pareça familiar</span>
+        <h2 class="h-sec">Você é a pessoa que resolve.</h2>
+        <p class="lead measure">Lembra da consulta, do boleto, do aniversário e do que acabou na geladeira. Responde a mensagem, apaga o incêndio, cuida de todo mundo e ainda tenta cuidar de você <strong>no tempo que sobra</strong>.</p>
+        <p class="lead measure">E quando o tempo finalmente sobra? Você deita e a cabeça continua trabalhando. <strong>Descansa e sente culpa.</strong> Desacelera e sente que está ficando para trás.</p>
+      </div>
+      <div class="checklist">
+        <p class="checklist-k">Quantos destes pontos são seus?</p>
+        <ul>
+          <li>Dizer "não" vem sempre acompanhado de culpa</li>
+          <li>Você faz muito e ainda sente que faz pouco</li>
+          <li>Descansar parece estar devendo alguma coisa</li>
+          <li>Suas necessidades ficam sempre "para depois"</li>
+          <li>Já tentou planner, rotina da manhã e mais uma técnica. Durou uma semana.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="band alt">
+    <div class="inner" style="max-width: 820px; text-align: center; justify-items: center;">
+      <p class="quote-xl">Nada disso falhou por falta de disciplina. Nenhuma dessas soluções pergunta o que vem <mark>antes</mark> da sobrecarga.</p>
+    </div>
+  </div>
+
+  <!-- 4. QUEBRA DE CRENÇA + CICLO -->
+  <div class="band">
+    <div class="inner">
+      <div class="stack-y" style="max-width: 820px">
+        <span class="eyebrow">Por que você funciona assim?</span>
+        <h2 class="h-sec">Você não tem um problema de organização. Você já é organizada, <mark>e é isso que te esgota.</mark></h2>
+      </div>
+      <div class="split">
+        <div class="stack-y">
+          <p class="lead">Sobrecarga não é só acúmulo de tarefas. É <strong>volume mais uma regra interna</strong> que diz:</p>
+          <div class="rules">
+            <p class="rule">"Se eu não fizer, ninguém faz."</p>
+            <p class="rule">"Eu preciso provar que consigo."</p>
+            <p class="rule">"Descansar é ficar devendo."</p>
+          </div>
+          <p class="measure">Depois de anos acompanhando mulheres exaustas mesmo depois de um fim de semana inteiro "descansando", eu percebi um ciclo se repetindo. Enquanto você só mexe na agenda, a regra continua mandando.</p>
+        </div>
+        <div class="cycle">
+          <svg viewBox="0 0 340 300" role="img" aria-label="Demanda leva a pensamento, que leva a emoção, que leva a comportamento, que leva a mais sobrecarga, que volta para a demanda">
+            <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+            <path class="arrow" d="M 222 34 Q 272 48 284 108" marker-end="url(#ah)"/>
+            <path class="arrow" d="M 284 156 Q 282 210 262 238" marker-end="url(#ah)"/>
+            <path class="arrow" d="M 198 262 L 150 262" marker-end="url(#ah)"/>
+            <path class="arrow" d="M 66 240 Q 52 200 56 158" marker-end="url(#ah)"/>
+            <path class="arrow" d="M 58 110 Q 66 50 116 36" marker-end="url(#ah)"/>
+            <rect class="node" x="120" y="16" width="100" height="40" rx="20"/><text x="170" y="41" text-anchor="middle">Demanda</text>
+            <rect class="node" x="232" y="112" width="104" height="40" rx="20"/><text x="284" y="137" text-anchor="middle">Pensamento</text>
+            <rect class="node" x="200" y="242" width="100" height="40" rx="20"/><text x="250" y="267" text-anchor="middle">Emoção</text>
+            <rect class="node" x="18" y="242" width="126" height="40" rx="20"/><text x="81" y="267" text-anchor="middle">Comportamento</text>
+            <rect class="node node-hot" x="4" y="112" width="104" height="40" rx="20"/><text x="56" y="137" text-anchor="middle">Sobrecarga</text>
+            <text x="170" y="142" text-anchor="middle" style="font-family: var(--display); font-style: italic; font-size: 17px; font-weight: 500; fill: var(--primary-dark)">e tudo recomeça</text>
+          </svg>
+          <p class="cycle-cap">O ciclo da sobrecarga</p>
+        </div>
+      </div>
+      <p class="big-line" style="max-width: 820px">É assim que você passa a confundir sobrecarga com responsabilidade. Mas isso é um padrão aprendido, <mark>e o que foi aprendido pode ser desaprendido.</mark></p>
+    </div>
+  </div>
+
+  <!-- 5. AS 5 RAÍZES, PARA TOCAR -->
+  <div class="band alt">
+    <div class="inner">
+      <div class="stack-y" style="max-width: 760px">
+        <span class="eyebrow">As 5 raízes da sobrecarga</span>
+        <h2 class="h-sec">Qual destas frases já passou pela sua cabeça esta semana?</h2>
+        <p class="lead">Toque em todas que parecerem suas.</p>
+      </div>
+      <div class="picker" id="picker">
+        <button type="button" class="chip" aria-pressed="false"><span class="box" aria-hidden="true"></span><span><span class="q">"Se eu não resolver, ninguém resolve."</span><span class="n">A que dá conta</span></span></button>
+        <button type="button" class="chip" aria-pressed="false"><span class="box" aria-hidden="true"></span><span><span class="q">"Se eu conseguir, ninguém vai duvidar de mim."</span><span class="n">A que precisa provar</span></span></button>
+        <button type="button" class="chip" aria-pressed="false"><span class="box" aria-hidden="true"></span><span><span class="q">"Se não ficou como deveria, não conta."</span><span class="n">A que exige o impecável</span></span></button>
+        <button type="button" class="chip" aria-pressed="false"><span class="box" aria-hidden="true"></span><span><span class="q">"Eu poderia estar fazendo mais."</span><span class="n">A que não se permite parar</span></span></button>
+        <button type="button" class="chip" aria-pressed="false"><span class="box" aria-hidden="true"></span><span><span class="q">"Isso é importante pra mim. Mas pode esperar."</span><span class="n">A que fica por último</span></span></button>
+        <p class="tally" id="tally" aria-live="polite">Cada frase é uma das 5 raízes da sobrecarga. Toque nas que parecerem suas.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. DEPOIMENTOS (placeholders) -->
+  <div class="band">
+    <div class="inner">
+      <div class="stack-y" style="max-width: 760px">
+        <span class="eyebrow">Você não está sozinha</span>
+        <div class="proof-stat"><b>[X.XXX]</b><p class="lead">mulheres já fizeram a Escala de Cansaço Emocional</p></div>
+        <h2 class="h-sub">O que elas dizem depois de se enxergar no resultado</h2>
+      </div>
+      <div class="tgrid">
+        <div class="tcard"><span class="stars" aria-hidden="true">★★★★★</span><p class="ph">[Depoimento real: print do WhatsApp ou mensagem de uma mulher que fez o teste]</p><div class="who"><span class="av" aria-hidden="true"></span><span>[Nome ou inicial] · [cidade]</span></div></div>
+        <div class="tcard"><span class="stars" aria-hidden="true">★★★★★</span><p class="ph">[Depoimento real: print do WhatsApp ou mensagem de uma mulher que fez o teste]</p><div class="who"><span class="av" aria-hidden="true"></span><span>[Nome ou inicial] · [cidade]</span></div></div>
+        <div class="tcard"><span class="stars" aria-hidden="true">★★★★★</span><p class="ph">[Depoimento real: print do WhatsApp ou mensagem de uma mulher que fez o teste]</p><div class="who"><span class="av" aria-hidden="true"></span><span>[Nome ou inicial] · [cidade]</span></div></div>
+      </div>
+      <p class="phnote">Espaço reservado para depoimentos reais.</p>
+    </div>
+  </div>
+
+  <!-- 7. REVELAÇÃO DO PRODUTO -->
+  <div class="band dark" id="reveal">
+    <div class="inner">
+      <div class="split">
+        <div class="stack-y">
+          <span class="eyebrow">Como liberar a parte 2</span>
+          <h2 class="h-sec">Foi por isso que eu criei a Raiz da Sobrecarga<sup style="font-size: .4em">®</sup>.</h2>
+        </div>
+        <p class="lead">Um guia de autoconhecimento psicológico que mostra <strong>qual padrão está por trás do seu cansaço</strong>, como ele se mantém e qual é o primeiro movimento possível. Ele parte do seu resultado. <mark>Nada de texto genérico.</mark></p>
+      </div>
+      <div class="steps">
+        <div class="step"><span class="step-n">1</span><span class="step-k">SINAL</span><p>O quanto isso está pesando em você agora</p></div>
+        <div class="step"><span class="step-n">2</span><span class="step-k">ORIGEM</span><p>Como você aprendeu a responder às demandas e às cobranças</p></div>
+        <div class="step"><span class="step-n">3</span><span class="step-k">CICLO</span><p>O que mantém a sobrecarga acontecendo, no seu caso</p></div>
+        <div class="step"><span class="step-n">4</span><span class="step-k">DIREÇÃO</span><p>O primeiro movimento que faz sentido para você</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. POR DENTRO -->
+  <div class="band">
+    <div class="inner split">
+      <div class="doc" aria-label="Prévia do conteúdo do guia">
+        <div class="doc-head"><span class="doc-title">Seu Mapa de Padrão</span><span class="doc-for">Raiz da Sobrecarga®<br>Karla Arantes</span></div>
+        <ol class="toc">
+          <li><span class="num">1</span><div><b>SEU RESULTADO</b><p>O padrão que mais pesa em você, explicado sem texto genérico</p></div></li>
+          <li><span class="num">2</span><div><b>SUA RAIZ</b><p>Por que certas situações disparam cobrança, culpa ou controle</p></div></li>
+          <li><span class="num">3</span><div><b>SEU CICLO</b><p>Pensamento, emoção e comportamento, desenhados para o seu caso</p></div></li>
+          <li><span class="num">4</span><div><b>SEU PRIMEIRO MOVIMENTO</b><p>Uma prática pequena e concreta, não uma lista de 30 hábitos</p></div></li>
+        </ol>
+        <p class="doc-foot">+ exercícios de reflexão para a sua vida real</p>
+      </div>
+      <div class="stack-y">
+        <span class="eyebrow">Por dentro do guia</span>
+        <h2 class="h-sec">Veja como ele é por dentro.</h2>
+        <div class="phones" aria-label="Espaço para telas do produto">
+          <div class="phone"><span><b>Tela 1</b>[print: resultado personalizado]</span></div>
+          <div class="phone"><span><b>Tela 2</b>[print: ciclo da sobrecarga]</span></div>
+          <div class="phone"><span><b>Tela 3</b>[print: primeiro movimento + exercício]</span></div>
+        </div>
+        <p class="phnote">Formato do produto: [guia digital + aula em vídeo, a confirmar]</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 9. DUAS ESCOLHAS -->
+  <div class="band alt">
+    <div class="inner">
+      <div class="stack-y" style="max-width: 760px">
+        <span class="eyebrow">Agora você tem duas opções</span>
+        <h2 class="h-sec">Continuar tratando a superfície, ou começar pela raiz.</h2>
+      </div>
+      <div class="choices">
+        <div class="choice choice-a">
+          <span class="choice-k">Opção 1</span>
+          <h3>Tratar a superfície</h3>
+          <ul>
+            <li>Reorganizar a agenda mais uma vez</li>
+            <li>Baixar mais uma lista de hábitos</li>
+            <li>Prometer que dessa vez vai se colocar em primeiro lugar</li>
+            <li>E daqui um mês estar no mesmo lugar, sem saber por quê</li>
+          </ul>
+        </div>
+        <div class="choice choice-b">
+          <span class="choice-k">Opção 2</span>
+          <h3>Começar pela raiz</h3>
+          <ul>
+            <li>Entender o padrão que te mantém no limite</li>
+            <li>Enxergar o ciclo que sustenta a sua sobrecarga</li>
+            <li>Sair com o primeiro passo que faz sentido para você</li>
+            <li><strong>Com 7 dias de garantia</strong></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. OFERTA -->
+  <div class="band" id="oferta">
+    <div class="inner split">
+      <div class="stack-y">
+        <span class="eyebrow">Tudo o que você recebe</span>
+        <h2 class="h-sec">Tudo parte do seu resultado.</h2>
+        <ul class="deliver">
+          <li><span><b>Seu Mapa de Padrão</b><span>O conteúdo do seu padrão predominante, sem texto genérico.</span></span></li>
+          <li><span><b>A explicação da sua raiz</b><span>Por que certas situações disparam cobrança, culpa, controle ou dificuldade de se priorizar.</span></span></li>
+          <li><span><b>O desenho do seu ciclo</b><span>Pensamento, emoção e comportamento, para você ver o que mantém a sobrecarga.</span></span></li>
+          <li><span><b>Seu primeiro movimento</b><span>Uma prática pequena e concreta, em vez de uma lista de 30 hábitos.</span></span></li>
+          <li><span><b>Exercícios de reflexão</b><span>Perguntas para aplicar à sua vida real, não à teoria.</span></span></li>
+        </ul>
+      </div>
+      <div class="pricecard">
+        <span class="offer-tag">Parte 2 do seu resultado</span>
+        <h3 class="pricecard-name">Raiz da Sobrecarga<sup style="font-size: 14px">®</sup></h3>
+        <div class="price">
+          <span class="price-sub">Pagamento único</span>
+          <span class="price-main"><small>R$</small>47</span>
+          <span class="price-sub">no Pix ou em até 3x no cartão</span>
+        </div>
+        <a class="cta" href="#oferta" data-cta>Liberar a parte 2 <span class="arr" aria-hidden="true">→</span></a>
+        <div class="trust">
+          <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5l5 2v4c0 3.4-2.2 5.6-5 7-2.8-1.4-5-3.6-5-7v-4z"/></svg>Garantia de 7 dias</span>
+          <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Pagamento seguro</span>
+          <span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 8.5l3.5 3.5L14 4"/></svg>Acesso imediato</span>
+        </div>
+        <div class="guarantee">
+          <svg width="48" height="48" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="24" fill="#EFE3D3" stroke="#B8966C" stroke-width="2"/><path d="M26 12l11 4v9c0 8-5 13-11 15-6-2-11-7-11-15v-9z" fill="#FDFAF7" stroke="#22384D" stroke-width="2" stroke-linejoin="round"/><path d="M21 26l3.5 3.5L31 23" fill="none" stroke="#5B8A6E" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <p><strong>Garantia de 7 dias.</strong> Abra, leia, faça o primeiro exercício. Se sentir que não é para você, peça o reembolso.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. AUTORIDADE -->
+  <div class="band alt">
+    <div class="inner split rev">
+      <div class="stack-y">
+        <span class="eyebrow">Quem criou</span>
+        <h2 class="h-sec">Sou Karla Arantes.</h2>
+        <p class="cred">Psicóloga · Especialista em Terapia Cognitivo-Comportamental pela PUC-RS e em Diagnósticos Psicológicos · CRP 04/71970</p>
+        <p class="lead measure">Durante 13 anos trabalhei em banco antes de me dedicar à Psicologia. <strong>Conheço a sobrecarga emocional por dentro</strong>: a cobrança, a meta e a sensação de que parar não é uma opção.</p>
+        <p class="measure">Hoje ajudo mulheres a entender os padrões que as mantêm no limite, mesmo quando sabem que precisam parar. A Raiz da Sobrecarga é a porta de entrada do <strong>Método Mulher 80/20</strong>.</p>
+        <div class="proof-sheet">[Print das respostas da Escala de Cansaço Emocional, com os nomes borrados]</div>
+      </div>
+      <img class="author-photo" src="data:image/jpeg;base64,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" alt="Karla Arantes" width="320" height="320">
+    </div>
+  </div>
+
+  <!-- 12. PARA QUEM É / NÃO É -->
+  <div class="band">
+    <div class="inner split top">
+      <div class="stack-y">
+        <span class="eyebrow">É para você se</span>
+        <ul class="fit">
+          <li>Está cansada de precisar dar conta de tudo</li>
+          <li>Sabe que deveria se colocar na própria lista, mas na prática não consegue</li>
+          <li>Quer entender o que está acontecendo antes de tentar mais uma técnica</li>
+        </ul>
+      </div>
+      <div class="stack-y">
+        <span class="eyebrow">Não é</span>
+        <ul class="fit notlist">
+          <li>Terapia nem diagnóstico psicológico</li>
+          <li>Promessa de eliminar a sobrecarga</li>
+          <li>Mais uma rotina para você conseguir cumprir</li>
+        </ul>
+        <p class="not">É psicoeducação e autoconhecimento. Se você vive um sofrimento psicológico intenso, este guia não substitui acompanhamento profissional individual.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. FAQ -->
+  <div class="band alt">
+    <div class="inner split top">
+      <div class="stack-y">
+        <span class="eyebrow">Perguntas frequentes</span>
+        <h2 class="h-sec">Ainda com dúvida?</h2>
+      </div>
+      <div class="faq">
+        <details><summary>Isso é terapia?</summary><p>Não. É um material de autoconhecimento baseado em anos atendendo mulheres sobrecarregadas e ajudando elas a saírem de um ciclo de esgotamento emocional.</p></details>
+        <details><summary>E se eu não me identificar com o resultado?</summary><p>Você tem 7 dias de garantia. Se sentir que não é para você, pede o reembolso.</p></details>
+        <details><summary>Como eu recebo?</summary><p>Por e-mail, logo após a confirmação do pagamento.</p></details>
+        <details><summary>Quais as formas de pagamento?</summary><p>Pix ou em até 3x no cartão de crédito.</p></details>
+        <details><summary>Quanto tempo leva?</summary><p>[A confirmar com a Karla: tempo médio para ler o guia e fazer o primeiro exercício.]</p></details>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. FECHAMENTO -->
+  <div class="band dark">
+    <div class="inner">
+      <div class="close">
+        <h2 class="h-sec">Você não precisa mudar a sua vida inteira hoje. <mark>Só precisa começar a entender o que está acontecendo.</mark></h2>
+        <p class="lead">Os mesmos comportamentos geram os mesmos resultados. A parte 2 do seu resultado está a um clique.</p>
+        <a class="cta" href="#oferta" data-cta>Liberar a parte 2 · R$47 <span class="arr" aria-hidden="true">→</span></a>
+        <p class="ps" style="color: var(--accent)">P.S. Você já passou tempo demais tentando resolver a superfície. Comece pela raiz.</p>
+        <p class="care" id="care" hidden>Se você está sofrendo muito agora, conversar com uma profissional pode ser o melhor primeiro passo. <a href="#oferta">Quero falar direto com a Karla</a></p>
+        <p class="disclaimer" style="color: #AFC0CF">Raiz da Sobrecarga é material de psicoeducação e não substitui acompanhamento psicológico individual.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="sticky" id="sticky" role="region" aria-label="Oferta">
+  <div class="sticky-in">
+    <div class="sticky-txt"><b>Parte 2: sua raiz</b>R$47 · garantia de 7 dias</div>
+    <a class="cta" href="#oferta" data-cta>Liberar agora</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  var LEVELS = [
+    { score: 14, badge: 'Leve', cls: 'lv-leve', name: 'Sobrecarga Leve',
+      dev: ['Isso não significa exaustão. Mas alguns padrões já começaram a aparecer e merecem atenção.',
+            'Na aula ao lado, eu te mostro como perceber os primeiros sinais antes que eles virem algo maior.'],
+      video: 'O cansaço que começa em silêncio',
+      bridge: 'A parte 1 mostrou que a sobrecarga ainda está começando. <strong>Este é o melhor momento para descobrir de onde ela vem</strong>, antes que o padrão se instale de vez.' },
+    { score: 29, badge: 'Alerta', cls: 'lv-alerta', name: 'Sobrecarga em Alerta',
+      dev: ['O cansaço já deixou de ser pontual e começou a fazer parte da sua rotina.',
+            'Na aula ao lado, eu te mostro como esse padrão se desenvolve e por que descansar pode estar sendo tão difícil.'],
+      video: 'Como você aprendeu a funcionar cansada',
+      bridge: 'A parte 1 mostrou <strong>o quanto</strong> você carrega. A parte 2 mostra <strong>por que</strong> você continua carregando, mesmo sabendo que está cansada.' },
+    { score: 44, badge: 'Elevada', cls: 'lv-elevada', name: 'Sobrecarga Elevada',
+      dev: ['Nesse estágio, a sobrecarga já pode estar afetando sua motivação, seu prazer pelas coisas e sua conexão consigo mesma.',
+            'Na aula ao lado, eu te explico como esse processo acontece. Se possível, assista até o final.'],
+      video: 'Quando a exaustão começa a roubar quem você é',
+      bridge: 'A parte 1 mostrou <strong>o quanto</strong> você carrega. A parte 2 mostra <strong>por que</strong> você continua carregando, mesmo sabendo que está cansada.' },
+    { score: 61, badge: 'Crítica', cls: 'lv-critica', name: 'Exaustão Crítica',
+      dev: ['Antes de qualquer coisa: isso não significa fraqueza. Significa que você sustentou peso demais por tempo demais.',
+            'A aula ao lado não foi gravada para te assustar. Respire fundo e assista com calma.'],
+      video: 'Seu corpo está tentando sobreviver ao peso que sua mente sustentou',
+      bridge: 'Você sustentou muito peso por muito tempo. <strong>Entender de onde vem esse peso</strong> é o primeiro passo para parar de carregar tudo sozinha.' }
+  ];
+  var ARC = 157.08;
+  var $ = function (id) { return document.getElementById(id); };
+  var btns = document.querySelectorAll('.seg button');
+  var narrow = window.matchMedia('(max-width: 899px)');
+  var current = 2;
+
+  function render(i) {
+    var L = LEVELS[i];
+    current = i;
+    $('score').textContent = L.score;
+    $('gauge-fill').setAttribute('stroke-dashoffset', (ARC - ARC * (L.score / 72)).toFixed(2));
+    var b = $('badge'); b.textContent = L.badge; b.className = 'badge ' + L.cls;
+    $('level-name').textContent = L.name;
+    var side = narrow.matches ? 'abaixo' : 'ao lado';
+    $('devolutiva').innerHTML = L.dev.map(function (p) { return '<p>' + p.replace('ao lado', side) + '</p>'; }).join('');
+    $('video-title').textContent = L.video;
+    $('level-k').textContent = 'Seu nível: ' + L.name + ' · ' + L.score + ' de 72';
+    $('level-bridge').innerHTML = L.bridge;
+    $('care').hidden = i !== 3;
+    btns.forEach(function (x) { x.setAttribute('aria-pressed', String(Number(x.dataset.level) === i)); });
+  }
+  btns.forEach(function (x) { x.addEventListener('click', function () { render(Number(x.dataset.level)); }); });
+  if (narrow.addEventListener) narrow.addEventListener('change', function () { render(current); });
+  render(2);
+
+  // Tap-to-recognize: a small commitment step. It never names her root; the guide does that.
+  var tally = $('tally');
+  document.querySelectorAll('#picker .chip').forEach(function (c) {
+    c.addEventListener('click', function () {
+      c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'));
+      var n = document.querySelectorAll('#picker .chip[aria-pressed="true"]').length;
+      if (n === 0) tally.innerHTML = 'Cada frase é uma das 5 raízes da sobrecarga. Toque nas que parecerem suas.';
+      else if (n === 1) tally.innerHTML = 'Você se reconheceu em <strong>1 das 5 raízes</strong>. A parte 2 do seu resultado confirma se é ela que sustenta o seu cansaço.';
+      else tally.innerHTML = 'Você se reconheceu em <strong>' + n + ' das 5 raízes</strong>. É comum. Mas uma delas pesa mais que as outras, e é por ela que você começa.';
+    });
+  });
+
+  document.querySelectorAll('[data-cta]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); $('oferta').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  });
+
+  // The buy bar stays hidden until the product is revealed, and steps aside while the price card is visible.
+  var sticky = $('sticky'), revealed = false, priceVisible = false;
+  function sync() { sticky.classList.toggle('show', revealed && !priceVisible); }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting || e.boundingClientRect.top < 0) revealed = true; });
+      sync();
+    }).observe($('reveal'));
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) { priceVisible = e.isIntersecting; });
+      sync();
+    }, { threshold: 0.2 }).observe(document.querySelector('.pricecard'));
+  }
+})();
+</script>
+</body>
+</html>
